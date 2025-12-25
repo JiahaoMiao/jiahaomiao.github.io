@@ -44,4 +44,4 @@ I reproduced and extended the seminal calculations by **Catani, Trentadue, Turno
 !!! quote "Seminal Reference"
     *S. Catani, L. Trentadue, G. Turnock, B.R. Webber*, "Resummation of large logarithms in e+ e- event shape distributions", *Nucl. Phys. B 407 (1993)*.
 
-[Download Bachelor Thesis](../assets/pdfs/bachelor_thesis.pdf){ .md-button .md-button--small }
+[Download Bachelor Thesis](../assets/pdfs/Tesi_Jiahao_Miao_986136.pdf){ .md-button .md-button--small }
