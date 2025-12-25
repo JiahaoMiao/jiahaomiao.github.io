@@ -1,0 +1,102 @@
+# Name of the Workflow as it appears in the "Actions" tab on GitHub
+name: Website publish 
+
+# TRIGGER SECTION
+# Defines when this workflow should run
+on:
+  push:
+    branches:
+      - main    # Runs when you push code to the 'main' branch
+      - master  # Runs if you use 'master' instead (good to have both just in case)
+
+# PERMISSIONS SECTION
+# Essential for the "New Way" of deploying (Native GitHub Pages)
+permissions:
+  contents: read      # Allows the action to read your Markdown files
+  pages: write        # Allows the action to upload to GitHub Pages
+  id-token: write     # Required for authenticating with Google/AWS or GitHub Pages OIDC
+
+# CONCURRENCY SECTION
+# Prevents multiple builds running at the same time if you push twice quickly
+concurrency:
+  group: "pages"
+  cancel-in-progress: false # If true, it cancels the previous build. False is safer for first-time setup.
+
+# JOBS SECTION
+jobs:
+  # ------------------------------------------------------------------
+  # JOB 1: BUILD THE WEBSITE
+  # ------------------------------------------------------------------
+  build:
+    runs-on: ubuntu-latest  # Uses a fresh Linux server for every build
+    steps:
+      
+      # Step 1: Download your repository files
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # IMPORTANT: Downloads full git history. Required for the "Last Updated" plugin to work.
+
+      # Step 2: Install Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x # Installs the latest stable Python 3 version
+
+      # Step 3: Enable Caching (INTERESTING FEATURE)
+      # This checks if we have processed images/dependencies before.
+      # If yes, it downloads them from cache instead of re-processing.
+      - name: Setup build cache
+        uses: actions/cache/restore@v4
+        with:
+          # Creates a unique ID based on your requirements.txt
+          key: mkdocs-material-${{ hashFiles('requirements.txt') }}
+          path: .cache # The folder where the Optimize plugin stores compressed images
+          restore-keys: |
+            mkdocs-material-
+
+      # Step 4: Install Image Compression Tools (INTERESTING FEATURE)
+      # Installs 'pngquant' (Linux tool) to compress PNGs without quality loss
+      - name: Install system dependencies
+        run: sudo apt-get install pngquant
+
+      # Step 5: Install Python Packages
+      # We use your requirements.txt to ensure consistency
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # Step 6: Configure GitHub Pages
+      # Automatically sets metadata for the deployment
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Step 7: The Main Build Command
+      # Compiles Markdown -> HTML into the 'site/' folder
+      # --strict fails the build if there are broken links (Good for quality control!)
+      - name: Build documentation
+        run: mkdocs build --strict
+
+      # Step 8: Prepare for Upload (The "New Way")
+      # Instead of pushing to a branch, we zip the 'site/' folder into an artifact
+      - name: Upload artifact to GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./site
+
+  # ------------------------------------------------------------------
+  # JOB 2: DEPLOY TO THE INTERNET
+  # ------------------------------------------------------------------
+  deploy:
+    environment:
+      name: github-pages  # Links this job to the "Environments" section in GitHub settings
+      url: ${{ steps.deployment.outputs.page_url }} # The resulting URL (e.g., your-name.github.io)
+    
+    runs-on: ubuntu-latest
+    needs: build  # This job waits for the 'build' job to finish successfully
+    
+    steps:
+      # Step 9: Go Live
+      # Takes the zipped artifact from Job 1 and pushes it to the live servers
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

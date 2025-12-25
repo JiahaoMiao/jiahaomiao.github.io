@@ -1,0 +1,1 @@
+mkdocs-material[recommended,imaging,git]>=9.5.0
