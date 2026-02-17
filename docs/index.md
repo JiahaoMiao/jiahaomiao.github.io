@@ -3,7 +3,7 @@ hide:
   - navigation
 ---
 
-# <div align="center" markdown> Hi, I'm Jiahao Miao :wave: </div>
+# <div align="center" markdown> Hi, I'm Jiahao Miao </div>
 
 <div align="center" markdown>
   <strong>M.Sc. Student in Theoretical Physics @ University of Milan</strong>
@@ -25,7 +25,7 @@ I obtained my Bachelor's degree in Physics from the University of Milan in July 
 
 ---
 
-## **:rocket: Quick Navigation**
+##  **Quick Navigation**
 
 Here you can find everything about my academic path and research.
 
@@ -57,7 +57,7 @@ Here you can find everything about my academic path and research.
 
 -   :notebook: **Notes**
     
-    Personal notes on QFT and GR for students.
+    Personal notes on QFT for students.
     
     [Download Notes](resources/notes.md){ .md-button .full-width }
 
@@ -69,7 +69,8 @@ Here you can find everything about my academic path and research.
 
 | Date | Event |
 | :--- | :--- |
-| **Jan 2026** | :round_pushpin: Participating in *Special Challenges in QCD* at **GGI (Florence)**. |
+| **Apr 2026** | :round_pushpin: Participating in IFAE 2026
+| **Jan 2026** | Attended *Special Challenges in QCD* at **GGI (Florence)**. |
 | **Dec 2025** | Attended the *Milan Christmas Meeting 2025*. |
 | **Oct 2025** | Attended the *REF 2025 (Resummation, Evolution, Factorization)*. |
 | **June 2025** | :page_facing_up: Published first PRL paper on Thrust Resummation. |

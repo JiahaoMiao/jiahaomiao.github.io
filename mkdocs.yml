@@ -8,7 +8,7 @@ site_description: Personal website of a Theoretical Particle Physics Master's st
 
 # Link to the source code on GitHub (adds the repo icon to the top right)
 repo_url: https://github.com/JiahaoMiao/jiahaomiao.github.io
-repo_name: JiahaoMiao
+repo_name: Jiahao Miao
 
 # Footer Copyright with license info
 copyright: Copyright &copy; 2024 - 2025 Jiahao Miao | CC BY-SA 4.0
@@ -30,12 +30,15 @@ theme:
     - navigation.indexes          # Allows clicking a section title to open a page
     - navigation.tabs             # Moves top-level nav to a horizontal bar
     - navigation.tabs.sticky      # Keeps the nav bar visible while scrolling
+    - navigation.instant          # Instant loading of pages (like a SPA)
+    - navigation.instant.prefetch # Prefetches pages when hovering links
+    - navigation.instant.progress # Shows a loading bar when navigating
     - navigation.top              # Adds a "Back to Top" arrow button
     - navigation.tracking         # Updates the URL hash as you scroll headers
     - toc.follow                  # The Table of Contents highlights where you are
     - search.highlight            # Highlights search terms in the results
     - search.share                # Adds a "Share" button to search results
-
+  
   # Color Palettes (Day/Night Mode)
   palette:
     # 1. Automatic switching based on OS preference
@@ -46,18 +49,18 @@ theme:
     # 2. Light Mode Configuration
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: black              # Header color
-      accent: cyan                # Link/Highlight color
+      primary: teal              # Header color
+      accent: deep purple                # Link/Highlight color
       toggle:
-        icon: material/weather-sunny
+        icon: material/brightness-7
         name: Switch to dark mode
     # 3. Dark Mode Configuration
     - media: "(prefers-color-scheme: dark)"
       scheme: slate               # The specific dark theme name
-      primary: black
-      accent: cyan
+      primary: teal
+      accent: teal
       toggle:
-        icon: material/weather-night
+        icon: material/brightness-4
         name: Switch to system preference
 
   # Typography (IBM Plex is great for academic readability)
@@ -78,31 +81,58 @@ plugins:
   #     blog_toc: true
   #     post_date_format: full 
   #     pagination_per_page: 10
-  - minify:                       # Compresses HTML (makes site faster)
-      minify_html: true
   - tags                          # Allows adding tags to pages
+  - privacy:                      # Manages privacy for external assets (like fonts). Adds local copies in order to respect user privacy. 
+      enabled: true
+      assets_exclude:
+        - unpkg.com/katex@0/*     # We want to load KaTeX from CDN (Content Delivery Network) for faster loading
+      links: true                 # Manages external links (default is true) 
+      links_attr_map:
+        target: _blank            # Opens external links in new tabs
+
   - git-revision-date-localized:  # Adds "Last updated: [Date]" to bottom of pages
       type: date
       enable_creation_date: true
+  - optimize:
+      enabled: true
+      cache_dir: .cache/plugin/optimize  # Speeds up future builds
+      optimize_jpg_quality: 90          # JPEG quality (0-100)
+      optimize_png_speed: 1             # speed/quality tradeoff that pngquant applies (1=slowest/best, 10=fastest/worst)
+  # Minification Plugin (put last to minify final output)
+  - minify:                       # Compresses HTML (makes site faster), computers don't care about whitespace
+      minify_html: true           
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+        remove_empty_space: true
   
 # ==========================================
 # 4. MARKDOWN EXTENSIONS (The "Superpowers")
 # ==========================================
 markdown_extensions:
+  # Standard Markdown Improvements
   - admonition                    # Enables "!!! note" blocks
   - footnotes                     # Enables [^1] style footnotes
-  - attr_list                     # Allows adding { .class } to elements
+  - attr_list                     # Allows adding { .class } to elements.
   - md_in_html                    # Allows Markdown inside HTML tags
+  - abbr                          # *[QFT]: Quantum Field Theory
+  - def_list                      # Term: Definition (glossary style) 
   - toc:
       permalink: true             # Adds the ¶ link symbol to headers
   
-  # Math Support (Crucial for Physics)
+  # Math Support (LaTeX style)
   - pymdownx.arithmatex:
       generic: true
   
   # Typographic improvements (transforms ... to … etc.)
   - pymdownx.betterem:
       smart_enable: all
+  - pymdownx.caret                  # Enables ^superscript^
+  - pymdownx.tilde                  # Enables ~subscript~
+  - pymdownx.mark                   # Enables ==highlighting==
+  - pymdownx.critic                 # Enables ~~strikethrough~~
+  - pymdownx.smartsymbols           # Auto-converts (c) -> ©, --> -> →
   
   # Code blocks and Highlighting
   - pymdownx.highlight:
@@ -115,17 +145,16 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
 
-  # Tabbed Content (e.g. switching between Python/C++)
+  # Interactive Content Blocks
   - pymdownx.tabbed:
-      alternate_style: true 
-  
-  # Dropdown lists (Collapsible sections)
-  - pymdownx.details
-  
-  # Task Lists (Checkbox lists)
-  - pymdownx.tasklist:
-      custom_checkbox: true
-      
+      alternate_style: true         # Uses alternate style for better visibility (C++, Python tabs look different)
+  - pymdownx.details                # Enables <details> collapsible sections
+  - pymdownx.tasklist:              # Enables - [ ]  to-do lists
+      custom_checkbox: true         # [x] To-do lists
+  - pymdownx.snippets:              # Allows reusing snippets of Markdown
+      base_path: .                  # Look in the root folder for snippets
+      auto_append:
+        - includes/glossary.md      # Automatically appends glossary.md to every page
   # Emojis (e.g. :rocket: :book:)
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
@@ -147,10 +176,10 @@ extra:
 
 # Load KaTeX for rendering math equations
 extra_javascript:
-  - javascripts/katex.js # Custom JS to render math on page load
   - https://unpkg.com/katex@0/dist/katex.min.js # KaTeX library
   - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js # Auto-render extension for KaTeX 
-  - javascripts/external-links.js # Opens external links in new tabs
+  - javascripts/katex.js # Custom JS to render math on page load
+  - javascripts/external-links.js # Opens pdfs and links in new tabs
 
 extra_css:
   - https://unpkg.com/katex@0/dist/katex.min.css # KaTeX CSS
@@ -167,5 +196,12 @@ nav:
       - Publications: academic/publications.md
       - Workshops & Talks: academic/workshops.md
       - Projects: academic/projects.md
-  - Resources:
-      - Notes: resources/notes.md
+  - Resources: resources/notes.md
+
+# ==========================================
+
+# WATCHED FILES FOR LIVE RELOAD
+watch:
+  - docs/
+  - mkdocs.yml
+  - includes/glossary.md

@@ -1,3 +1,15 @@
+# Ignore build output
 site/
-.cache
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore MkDocs cache
+.cache/
+
+# Ignore VSCode settings
 .vscode/
+
+# Ignore hidden folder
+docs/assets/hidden
