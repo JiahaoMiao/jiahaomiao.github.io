@@ -19,6 +19,8 @@ copyright: Copyright &copy; 2024 - 2025 Jiahao Miao | CC BY-SA 4.0
 theme:
   name: material
 
+  custom_dir: overrides
+
   favicon: assets/images/favicon.svg
   logo: assets/images/favicon.svg
   
@@ -49,7 +51,7 @@ theme:
     # 2. Light Mode Configuration
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: teal              # Header color
+      primary: black              # Header color
       accent: deep purple                # Link/Highlight color
       toggle:
         icon: material/brightness-7
@@ -57,7 +59,7 @@ theme:
     # 3. Dark Mode Configuration
     - media: "(prefers-color-scheme: dark)"
       scheme: slate               # The specific dark theme name
-      primary: teal
+      primary: black
       accent: teal
       toggle:
         icon: material/brightness-4
@@ -180,9 +182,11 @@ extra_javascript:
   - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js # Auto-render extension for KaTeX 
   - javascripts/katex.js # Custom JS to render math on page load
   - javascripts/external-links.js # Opens pdfs and links in new tabs
+  - javascripts/baryon.js # Adds an animated quark dance background to the homepage
 
 extra_css:
   - https://unpkg.com/katex@0/dist/katex.min.css # KaTeX CSS
+  - stylesheets/home.css # Custom CSS for styling overrides and the attractor background
 
 # ==========================================
 # 6. NAVIGATION MENU

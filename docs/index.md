@@ -1,6 +1,8 @@
 ---
+template: home.html
 hide:
   - navigation
+  - toc
 ---
 
 # <div align="center" markdown> Hi, I'm Jiahao Miao </div>

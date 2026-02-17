@@ -1,0 +1,30 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  
+  <style>
+    /* Hide the header shadow on home for cleaner look */
+    .md-header { position: absolute; background: transparent; box-shadow: none; width: 100%; }
+    /* Force main container to touch edges */
+    .md-main__inner { margin-top: 0; }
+    
+    /* Hide Sidebars */
+    @media screen and (min-width: 60em) { .md-sidebar--secondary { display: none; } }
+    @media screen and (min-width: 76.25em) { .md-sidebar--primary { display: none; } }
+  </style>
+
+  <section class="hero-container">
+    <canvas id="attractor-canvas"></canvas>
+    
+    <div class="hero-content">
+      <h1>Jiahao Miao</h1>
+      <p>Theoretical Particle Physics &bull; University of Milan</p>
+      
+      <div class="hero-buttons">
+        <a href="about/cv/" class="md-button">View CV</a>
+        <a href="academic/publications/" class="md-button">Publications</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

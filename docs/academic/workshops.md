@@ -6,15 +6,16 @@ A list of conferences and workshops I have attended to deepen my understanding o
 
 ## :calendar: Upcoming Events
 
+---
+
+## :fontawesome-solid-history: Past Attendance
+
 ### **2026**
 
 * **[Special Challenges in QCD](https://agenda.infn.it/event/48177/)**
     * :round_pushpin: *Galileo Galilei Institute (GGI), Florence*
     * :calendar: *8-9 January 2026*
 
----
-
-## :fontawesome-solid-history: Past Attendance
 
 ### **2025**
 
