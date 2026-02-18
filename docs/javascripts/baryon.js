@@ -45,19 +45,33 @@ document$.subscribe(function() {
     initParticles();
 
     // --- SCROLL FADE ---
-    function handleScroll() {
+    var lastScrollY = window.scrollY;
+    var ticking = false;
+
+    function updateParallax() {
         if (!heroContent) return;
-        var scrollPos = window.scrollY;
+        
+        var scrollPos = lastScrollY;
         var windowHeight = window.innerHeight;
         var opacity = 1 - Math.max(0, (scrollPos - (windowHeight * 0.1)) / (windowHeight * 0.8));
-        var translate = scrollPos * 0.4;
+        var translate = scrollPos * 0.4; // Parallax speed
         
         if (opacity >= 0) {
             heroContent.style.opacity = opacity;
-            heroContent.style.transform = `translateY(${translate}px)`;
+            // Use translate3d to force hardware acceleration (GPU)
+            heroContent.style.transform = `translate3d(0, ${translate}px, 0)`;
         }
+        
+        ticking = false;
     }
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", function() {
+        lastScrollY = window.scrollY;
+        if (!ticking) {
+            window.requestAnimationFrame(updateParallax);
+            ticking = true;
+        }
+    }, { passive: true }); // 'passive: true' tells browser we won't preventDefault()
 
     // --- HELPER: Hex to RGBA ---
     function hexAlpha(hex, alpha) {
