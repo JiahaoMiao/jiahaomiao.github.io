@@ -100,7 +100,7 @@ document$.subscribe(function() {
         });
     }
 
-    // --- DRAWING FUNCTIONS (Reused) ---
+    // --- DRAWING FUNCTIONS ---
 
     // 1. Draw Flux Tube
     function drawFluxTube(a, b) {
