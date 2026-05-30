@@ -1,0 +1,60 @@
+# Build the Zensical site and deploy it to GitHub Pages on every push to main.
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # allow manual runs from the Actions tab
+
+# Permissions required by the GitHub Pages deployment (Actions source).
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment; don't cancel an in-progress one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Installs uv and caches its download/global cache. uv reads
+      # .python-version and pyproject.toml to provision Python 3.12.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
+        with:
+          enable-cache: true
+
+      # Install the locked dependencies (Zensical) into a virtual env.
+      # --frozen fails if uv.lock is out of date, guaranteeing reproducible builds.
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      # Compile docs/ -> site/. --strict aborts the build on any warning.
+      - name: Build site
+        run: uv run --frozen zensical build --strict
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

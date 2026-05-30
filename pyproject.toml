@@ -1,0 +1,18 @@
+[project]
+name = "jiahaomiao-website"
+version = "0.0.0"
+description = "Personal website of Jiahao Miao — Theoretical Particle Physics, University of Milan."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # Zensical is the static site generator (and build tool) for this site.
+    # It bundles its own Material-derived theme, so mkdocs / mkdocs-material
+    # are no longer required.
+    "zensical>=0.0.43",
+]
+
+[tool.uv]
+# This is a website, not an importable/installable Python package — there is no
+# Python module to build. Treat it as a "virtual" project: uv installs the
+# dependencies into the environment but does not try to build/install this repo.
+package = false

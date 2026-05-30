@@ -5,7 +5,10 @@ site/
 __pycache__/
 *.py[cod]
 
-# Ignore MkDocs cache
+# Ignore uv virtual environment
+.venv/
+
+# Ignore build cache (Zensical / MkDocs)
 .cache/
 
 # Ignore VSCode settings
