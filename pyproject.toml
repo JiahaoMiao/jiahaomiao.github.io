@@ -16,3 +16,8 @@ dependencies = [
 # Python module to build. Treat it as a "virtual" project: uv installs the
 # dependencies into the environment but does not try to build/install this repo.
 package = false
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+]

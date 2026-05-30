@@ -1,0 +1,37 @@
+# Pre-commit hooks for this Zensical site.
+#   Enable once per clone:   uv run pre-commit install
+#   Run against everything:  uv run pre-commit run --all-files
+# Note: CI (deploy.yml) independently runs `zensical build --strict`; these hooks
+# are a faster local mirror of that gate, not a replacement for it.
+
+repos:
+  # ---- Standard hygiene ----------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        # Preserve trailing spaces used for hard line breaks in Markdown.
+        args: ["--markdown-linebreak-ext=md"]
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=4096"] # the tracked thesis PDF is ~1.8 MB; block bigger accidents
+      - id: check-toml # validates zensical.toml, pyproject.toml
+      - id: check-yaml # validates deploy.yml and this file
+        exclude: ^mkdocs\.yml$ # legacy MkDocs config uses !!python/name: tags
+
+  # ---- Keep uv.lock in sync with pyproject.toml ----------------------------
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.17
+    hooks:
+      - id: uv-lock
+
+  # ---- Build the site (fail on any warning) before committing --------------
+  - repo: local
+    hooks:
+      - id: zensical-build
+        name: zensical build --strict
+        entry: uv run --frozen zensical build --strict
+        language: system
+        pass_filenames: false # build the whole site, don't pass file args
+        always_run: true # run regardless of which files changed

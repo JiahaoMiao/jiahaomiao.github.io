@@ -31,14 +31,15 @@ jobs:
         with:
           enable-cache: true
 
-      # Install the locked dependencies (Zensical) into a virtual env.
+      # Install the locked runtime deps (Zensical) into a virtual env.
       # --frozen fails if uv.lock is out of date, guaranteeing reproducible builds.
+      # --no-dev skips dev-only tooling (e.g. pre-commit) that CI doesn't need.
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --no-dev
 
       # Compile docs/ -> site/. --strict aborts the build on any warning.
       - name: Build site
-        run: uv run --frozen zensical build --strict
+        run: uv run --no-dev --frozen zensical build --strict
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
