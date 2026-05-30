@@ -26,11 +26,11 @@ For my Bachelor's thesis, I studied the resummed cross-section for the **Thrust 
 
 !!! info "Definition: Thrust"
     Thrust is a classic event shape variable used to characterize the geometry of an event. It is defined as:
-    
+
     $$
     \tau = 1-T = 1- \max_{\vec{n}} \frac{\sum_i |\vec{p}_i \cdot \vec{n}|}{\sum_i |\vec{p}_i|}
     $$
-    
+
     In the limit $\tau \to 0$ (the **two-jet limit**), large logarithms of the form $L = \ln(1/\tau)$ appear at every order in perturbation theory, spoiling the convergence of the fixed-order expansion.
 
 **Methodology:**

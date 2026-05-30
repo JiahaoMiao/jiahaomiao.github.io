@@ -40,7 +40,7 @@ Here is a comparison of how I implemented a simple Monte Carlo integration in bo
 === "Result"
 
     > Pi is approx: **3.14159...**
-    
+
     The convergence rate scales as $1/\sqrt{N}$.
 
 

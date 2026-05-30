@@ -34,33 +34,33 @@ Here you can find everything about my academic path and research.
 <div class="grid cards" markdown>
 
 -   :pencil: **Research**
-    
+
     Explore my work on QCD resummation.
-    
+
     [Read Research Interests](about/research.md){ .md-button .md-button--primary .full-width }
 
 -   :newspaper: **Publications**
-    
+
     My published papers and conference proceedings.
-    
+
     [View Publications](academic/publications.md){ .md-button .full-width }
 
 -   :calendar: **Workshops**
-    
+
     Conferences, schools, and seminars I have attended.
-    
+
     [View Activity](academic/workshops.md){ .md-button .full-width }
 
 -   :mortar_board: **CV & Career**
-    
+
     My academic curriculum and skills.
-    
+
     [See Full CV](about/cv.md){ .md-button .full-width }
 
 -   :notebook: **Notes**
-    
+
     Personal notes on QFT for students.
-    
+
     [Download Notes](resources/notes.md){ .md-button .full-width }
 
 </div>

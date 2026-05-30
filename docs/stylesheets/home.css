@@ -31,7 +31,7 @@ canvas#attractor-canvas {
   padding: 2rem;
   max-width: 900px;
   /* Hardware acceleration for smoother scroll fade */
-  will-change: opacity, transform; 
+  will-change: opacity, transform;
 }
 
 .hero-content h1 {
@@ -40,7 +40,7 @@ canvas#attractor-canvas {
   margin-bottom: 0.5rem;
   color: #fff;
   /* Cool Text Glow Effect */
-  text-shadow: 0 0 20px rgba(255, 200, 0, 0.3); 
+  text-shadow: 0 0 20px rgba(255, 200, 0, 0.3);
   letter-spacing: -2px;
 }
 

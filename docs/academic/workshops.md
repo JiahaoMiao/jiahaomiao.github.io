@@ -28,11 +28,11 @@ A list of conferences and workshops I have attended to deepen my understanding o
     * :round_pushpin: *CNRS Paul Langevin Center in Aussois (Savoie)*
     * :calendar: *17 December 2025*
     * Attended sessions on $\alpha_s$ from $e^+e^-$ hadronic final states.
-     
+
 * **[REF 2025 (Resummation, Evolution, Factorization)](https://agenda.infn.it/event/43981/)**
     * :round_pushpin: *Milan*
     * :calendar: *13-17 October 2025*
-     
+
 * **[Parton Showers and Resummation (PSR2025)](https://indico.cern.ch/event/1487647/)** <span class="md-tag">Remote</span>
     * :round_pushpin: *CERN*
     * :calendar: *16 July 2025*

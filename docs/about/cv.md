@@ -1,6 +1,6 @@
 # Curriculum Vitae
 
-I am a Master's student in Theoretical Physics with a focus on resummation in perturbative QCD. 
+I am a Master's student in Theoretical Physics with a focus on resummation in perturbative QCD.
 I am currently seeking **PhD opportunities** for Fall 2026.
 
 [:fontawesome-solid-file-pdf: Download Full CV](../assets/pdfs/Jiahao_Miao_CV.pdf){ .md-button .md-button--primary .md-button--large }
