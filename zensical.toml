@@ -34,11 +34,11 @@ extra_javascript = [
     "https://unpkg.com/katex@0/dist/contrib/auto-render.min.js",
     "javascripts/katex.js",          # renders math on page load
     "javascripts/external-links.js", # opens pdfs/links in new tabs
-    "javascripts/baryon.js",         # animated quark-dance homepage background
+    "javascripts/hero-animation.js", # collider-tracks homepage background
 ]
 extra_css = [
     "https://unpkg.com/katex@0/dist/katex.min.css",
-    "stylesheets/home.css",          # homepage hero + attractor background styling
+    "stylesheets/home.css",          # homepage hero + animation styling
 ]
 
 nav = [
