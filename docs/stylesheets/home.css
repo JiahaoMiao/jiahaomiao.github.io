@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eef1f6; /* Light field (restored to deep slate under the dark scheme below) */
+  background: #ffffff; /* White field, matching the page background (deep slate under the dark scheme below) */
   overflow: hidden;
   margin-bottom: 2rem; /* Spacing before content starts */
 }

@@ -4,13 +4,28 @@
   {{ super() }}
 
   <style>
-    /* Hide the header shadow on home for cleaner look */
-    .md-header { position: absolute; background: transparent; box-shadow: none; width: 100%; }
-    /* The transparent header sits over the hero. Its icons/title default to the
-       primary's contrast colour (white) — correct over the dark hero, but
-       invisible over the LIGHT hero. In light mode force them dark so they stay
-       legible (and the palette toggle stays findable on the landing page). */
-    [data-md-color-scheme="default"] .md-header { color: #141a24; }
+    /* The home header (and tabs) float over the hero with no background of
+       their own. Material's primary=black palette paints both bars a solid dark
+       via [data-md-color-primary=black] {.md-header,.md-tabs} rules whose (0,2,0)
+       specificity beats a plain `.md-header { background: transparent }` (0,1,0)
+       — so the bar stayed dark, and the light-mode text (forced dark below) was
+       dark-on-dark and invisible. Re-assert transparency at matching specificity
+       (these in-body rules win the tie on source order) and colour the text per
+       scheme: dark ink over the light hero, white over the slate hero, so the
+       title, palette toggle and source link stay legible in both. */
+    .md-header { position: absolute; box-shadow: none; width: 100%; }
+
+    [data-md-color-scheme="default"] .md-header,
+    [data-md-color-scheme="default"] .md-tabs { background-color: transparent; }
+    [data-md-color-scheme="default"] .md-header,
+    [data-md-color-scheme="default"] .md-tabs,
+    [data-md-color-scheme="default"] .md-tabs__link { color: #141a24; }
+
+    [data-md-color-scheme="slate"] .md-header,
+    [data-md-color-scheme="slate"] .md-tabs { background-color: transparent; }
+    [data-md-color-scheme="slate"] .md-header,
+    [data-md-color-scheme="slate"] .md-tabs,
+    [data-md-color-scheme="slate"] .md-tabs__link { color: #fff; }
     /* Force main container to touch edges */
     .md-main__inner { margin-top: 0; }
 

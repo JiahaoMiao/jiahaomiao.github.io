@@ -30,10 +30,10 @@
  *
  * Interaction:
  *   - Click / tap creates a collision (a displaced "secondary vertex") at that
- *     point; moving / dragging keeps spawning them as the pointer travels. Tracks
- *     still bend in the same global field and are still absorbed at the rings
- *     (which stay centred on the detector), so it stays physically coherent.
- *   - Listeners are passive, so a touch-drag still scrolls the page on mobile.
+ *     point. Tracks still bend in the same global field and are still absorbed
+ *     at the rings (which stay centred on the detector), so it stays physically
+ *     coherent. Hovering does nothing — only a click fires an event.
+ *   - The listener is passive, so a tap still lets the page scroll on mobile.
  *
  * Resource budget (the whole point):
  *   - The rAF loop STOPS when the hero is off-screen (IntersectionObserver) or
@@ -48,7 +48,7 @@
  *   - Cyclotron rotation per track is precomputed once (cos/sin) -> no trig in
  *     the hot path.
  *   - Canvas is DPR-aware but capped at 2x to bound fill cost.
- *   - One passive pointer-move + one passive pointer-down listener.
+ *   - One passive pointer-down listener.
  *   - Listeners/observer are torn down on instant navigation (no leaks).
  * ========================================================================== */
 (function () {
@@ -114,7 +114,6 @@
     var SHO_CONE   = 0.45;  // shower secondary half-cone around parent dir (rad)
     var MAXDEPTH   = 2;     // EM shower cascade depth
     var AMBIENT    = 150;   // frames between ambient collisions (~2.5s @60fps)
-    var PTR_DIST   = 64;    // cursor travel (px) needed to fire a collision
     var FLASH_R    = 44;    // vertex-flash glow sprite radius, CSS px
     var CLOUD_R    = 26;    // shower-cloud glow sprite radius, CSS px
 
@@ -131,7 +130,6 @@
     var R_TRACKER = 0, R_ECAL = 0, R_ECAL2 = 0, R_HCAL = 0, R_HCAL2 = 0;
     var rafId = 0, running = false, visible = false, started = false;
     var ambientTimer = 0, flash = 0, flashX = 0, flashY = 0;
-    var lastPX = -1e9, lastPY = -1e9;
 
     // ---- object pools (allocated once) ------------------------------------
     var pool = new Array(MAX);
@@ -517,19 +515,9 @@
       else if (visible && !document.hidden) start();
     }
     // Click / tap -> a collision at the pointer (a displaced secondary vertex).
+    // Hovering deliberately does nothing; only a press fires an event.
     function onPointerDown(e) {
-      var x = e.offsetX, y = e.offsetY;
-      fireEvent(x, y, null);
-      lastPX = x; lastPY = y;
-    }
-    // Move / drag -> keep firing collisions as the pointer travels.
-    function onPointerMove(e) {
-      var x = e.offsetX, y = e.offsetY;
-      var dx = x - lastPX, dy = y - lastPY;
-      if (dx * dx + dy * dy >= PTR_DIST * PTR_DIST) {
-        fireEvent(x, y, null);
-        lastPX = x; lastPY = y;
-      }
+      fireEvent(e.offsetX, e.offsetY, null);
     }
 
     window.addEventListener("resize", onResize, { passive: true });
@@ -537,7 +525,6 @@
     document.addEventListener("visibilitychange", onVisibility);
     reduced.addEventListener("change", onReducedChange);
     canvas.addEventListener("pointerdown", onPointerDown, { passive: true });
-    canvas.addEventListener("pointermove", onPointerMove, { passive: true });
 
     var io = new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;
@@ -573,7 +560,6 @@
       document.removeEventListener("visibilitychange", onVisibility);
       reduced.removeEventListener("change", onReducedChange);
       canvas.removeEventListener("pointerdown", onPointerDown);
-      canvas.removeEventListener("pointermove", onPointerMove);
     };
   });
 })();
