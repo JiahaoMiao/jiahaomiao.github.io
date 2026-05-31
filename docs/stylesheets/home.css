@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1e2129; /* Deep Slate */
+  background: #eef1f6; /* Light field (restored to deep slate under the dark scheme below) */
   overflow: hidden;
   margin-bottom: 2rem; /* Spacing before content starts */
 }
@@ -27,7 +27,7 @@ canvas#hero-canvas {
   position: relative;
   z-index: 2;
   text-align: center;
-  color: white;
+  color: #141a24; /* dark ink on the light field; overridden in dark mode */
   padding: 2rem;
   max-width: 900px;
   /* Hardware acceleration for smoother scroll fade */
@@ -38,16 +38,16 @@ canvas#hero-canvas {
   font-size: 5rem; /* Massive Title */
   font-weight: 800;
   margin-bottom: 0.5rem;
-  color: #fff;
-  /* Cool Text Glow Effect */
-  text-shadow: 0 0 20px rgba(255, 200, 0, 0.3);
+  color: #141a24;
+  /* Soft cool glow on the light field */
+  text-shadow: 0 0 24px rgba(70, 110, 190, 0.18);
   letter-spacing: -2px;
 }
 
 .hero-content p {
   font-size: 1.8rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(20, 26, 36, 0.72);
   margin-bottom: 3rem;
 }
 
@@ -64,19 +64,50 @@ canvas#hero-canvas {
   font-size: 1.2rem;
   padding: 1rem 2rem;
   border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05); /* Very transparent */
-  backdrop-filter: blur(10px); /* Blurs the attractor behind the button */
-  color: white;
+  border: 1px solid rgba(20, 30, 50, 0.25);
+  background: rgba(20, 30, 50, 0.04); /* Faint dark tint on the light field */
+  backdrop-filter: blur(10px); /* Blurs the animation behind the button */
+  color: #141a24;
   transition: all 0.3s ease;
 }
 
 .hero-buttons .md-button:hover {
-  background: white;
-  color: black;
+  background: #141a24;
+  color: #fff;
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3); /* Orange glow on hover */
-  transform: translateZ(0); /* Force GPU acceleration for smoother hover */
+  box-shadow: 0 10px 30px rgba(70, 110, 190, 0.25); /* Cool lift glow */
+}
+
+/* =========================================
+   3b. DARK SCHEME OVERRIDES (slate)
+   ========================================= */
+/* The hero defaults to the light field above. Under the dark (slate) scheme,
+   restore the original deep-slate hero, white text, and glass buttons. The
+   canvas animation reads .hero-container's computed background, so it follows
+   automatically. */
+[data-md-color-scheme="slate"] .hero-container { background: #1e2129; }
+
+[data-md-color-scheme="slate"] .hero-content { color: #fff; }
+
+[data-md-color-scheme="slate"] .hero-content h1 {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 200, 0, 0.3); /* warm glow */
+}
+
+[data-md-color-scheme="slate"] .hero-content p {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-md-color-scheme="slate"] .hero-buttons .md-button {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+[data-md-color-scheme="slate"] .hero-buttons .md-button:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3); /* orange glow */
 }
 
 /* =========================================

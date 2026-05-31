@@ -69,25 +69,38 @@
 
     // ---- configuration ----------------------------------------------------
     var PI2       = Math.PI * 2;
-    var BG        = "#1e2129";                   // slate (matches .hero-container)
-    var BG_FADE   = "rgba(30, 33, 41, 0.14)";    // per-frame fade -> trail length
-    var RING_T    = "rgba(150, 170, 200, 0.05)";  // tracker ring (inner)
-    var RING_E    = "rgba(150, 170, 200, 0.075)"; // EM-calorimeter ring (middle)
-    var RING_H    = "rgba(150, 170, 200, 0.06)";  // hadron-calorimeter ring (outer)
 
-    // Track colours (indexed by ci). Hadrons warm, EM blue/cyan, shower frags
-    // blue-white, muons white. Constant strings -> assigned to strokeStyle with
-    // no per-frame allocation.
-    var COLORS    = ["#ffb347", "#ff8c2a", "#ffd23a", "#4ab3ff", "#28e0ff",
-                     "#cfe8ff", "#ffffff"];
+    // Two render palettes (applied live by applyTheme). Geometry + physics are
+    // identical across themes; only the colours and the glow compositing differ:
+    //   - DARK : bright tracks + additive ("lighter") glow on a slate field.
+    //   - LIGHT: dark "ink" tracks + saturated deposits drawn normally on a light
+    //            field. Additive glow is invisible on light, so the glow layer
+    //            falls back to source-over (a soft colour haze, not white glow).
+    // The hero background is deliberately NOT hard-coded: applyTheme() reads it
+    // from the themed .hero-container so the canvas always matches the container
+    // (one source of truth). track[] is indexed by ci (see *_CIS below).
+    var PAL_DARK = {
+      track: ["#ffb347", "#ff8c2a", "#ffd23a", "#4ab3ff", "#28e0ff", "#cfe8ff", "#ffffff"],
+      ring: "150, 170, 200", ringA: [0.05, 0.075, 0.06],
+      depEcal: "#bfe6ff", depHcal: "#ff7a3c",
+      glowOp: "lighter", flash: "#ffffff", cloud: "#aee0ff",
+      flashA: 1.0, cloudA: 0.60, depBloomA: 0.22, depCoreA: 0.45
+    };
+    var PAL_LIGHT = {
+      track: ["#c2410c", "#9a3412", "#b45309", "#1d4ed8", "#0e7490", "#64748b", "#0b1220"],
+      ring: "40, 52, 74", ringA: [0.10, 0.13, 0.11],
+      depEcal: "#1d4ed8", depHcal: "#ea580c",
+      glowOp: "source-over", flash: "#9fb4d6", cloud: "#5b8fc9",
+      flashA: 0.45, cloudA: 0.40, depBloomA: 0.16, depCoreA: 0.55
+    };
     var HADRON_CIS = [0, 1, 2];
     var EM_CIS     = [3, 4];
     var SHOWER_CI  = 5;
     var MUON_CI    = 6;
 
-    // Calorimeter energy-deposit colours (drawn additively): ECAL cool, HCAL warm.
-    var DEP_ECAL  = "#bfe6ff";
-    var DEP_HCAL  = "#ff7a3c";
+    // Live render colours / compositing, assigned by applyTheme().
+    var BG, BG_FADE, COLORS, RING_T, RING_E, RING_H, DEP_ECAL, DEP_HCAL;
+    var GLOW_OP, FLASH_A, CLOUD_A, DEP_BLOOM_A, DEP_CORE_A;
 
     // Particle kinds and their alpha dimming.
     var KIND_HADRON = 0, KIND_EM = 1, KIND_LOOP = 2, KIND_SHOWER = 3, KIND_MUON = 4;
@@ -155,8 +168,35 @@
       c.fillRect(0, 0, d, d);
       return s;
     }
-    var flashSprite = glowSprite("#ffffff", FLASH_R);
-    var cloudSprite = glowSprite("#aee0ff", CLOUD_R);
+    var flashSprite, cloudSprite; // (re)built per theme by applyTheme()
+
+    // Apply the active colour scheme. Reads the themed hero background straight
+    // from CSS, swaps the track/ring/deposit palette + glow compositing, and
+    // rebuilds the glow sprites. Called at start-up and whenever the palette
+    // toggle flips <body data-md-color-scheme> ("default" = light, else dark).
+    function readBgRGB() {
+      var src = canvas.parentElement || canvas;
+      var m = /(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(
+                getComputedStyle(src).backgroundColor || "");
+      return m ? (m[1] + ", " + m[2] + ", " + m[3]) : "30, 33, 41";
+    }
+    function applyTheme() {
+      var light = document.body.getAttribute("data-md-color-scheme") === "default";
+      var P = light ? PAL_LIGHT : PAL_DARK;
+      var rgb = readBgRGB();
+      BG = "rgb(" + rgb + ")";
+      BG_FADE = "rgba(" + rgb + ", 0.14)";
+      COLORS = P.track;
+      RING_T = "rgba(" + P.ring + ", " + P.ringA[0] + ")";
+      RING_E = "rgba(" + P.ring + ", " + P.ringA[1] + ")";
+      RING_H = "rgba(" + P.ring + ", " + P.ringA[2] + ")";
+      DEP_ECAL = P.depEcal; DEP_HCAL = P.depHcal;
+      GLOW_OP = P.glowOp;
+      FLASH_A = P.flashA; CLOUD_A = P.cloudA;
+      DEP_BLOOM_A = P.depBloomA; DEP_CORE_A = P.depCoreA;
+      flashSprite = glowSprite(P.flash, FLASH_R);
+      cloudSprite = glowSprite(P.cloud, CLOUD_R);
+    }
 
     // ---- spawning ---------------------------------------------------------
     function acquire() { // first free pool slot, or -1 if at the cap
@@ -354,8 +394,9 @@
         }
       }
 
-      // Additive glow: calorimeter deposits, vertex flash, shower clouds.
-      ctx.globalCompositeOperation = "lighter";
+      // Glow layer: calorimeter deposits, vertex flash, shower clouds. Additive
+      // ("lighter") in dark mode; soft source-over colour haze in light mode.
+      ctx.globalCompositeOperation = GLOW_OP;
       ctx.lineCap = "round";
       for (var d = 0; d < DEPS; d++) {
         var dp = deps[d];
@@ -366,17 +407,17 @@
         var dw = 0.04 + 0.12 * dp.mag;     // angular half-width grows with energy
         ctx.strokeStyle = dp.col;
         // Soft outer bloom, then a brighter core.
-        ctx.globalAlpha = df * 0.22 * dp.mag;
+        ctx.globalAlpha = df * DEP_BLOOM_A * dp.mag;
         ctx.lineWidth = 10 + 18 * dp.mag;
         ctx.beginPath(); ctx.arc(cx, cy, dp.r, dp.ang - dw, dp.ang + dw); ctx.stroke();
-        ctx.globalAlpha = df * (0.45 + 0.4 * dp.mag);
+        ctx.globalAlpha = df * (DEP_CORE_A + 0.4 * dp.mag);
         ctx.lineWidth = 4 + 8 * dp.mag;
         ctx.beginPath(); ctx.arc(cx, cy, dp.r, dp.ang - dw, dp.ang + dw); ctx.stroke();
       }
 
       if (flash > 0.02) {
         var fr = FLASH_R * (0.6 + flash * 0.8);
-        ctx.globalAlpha = flash;
+        ctx.globalAlpha = flash * FLASH_A;
         ctx.drawImage(flashSprite, flashX - fr, flashY - fr, fr * 2, fr * 2);
         flash *= 0.88;
       } else {
@@ -389,7 +430,7 @@
         if (cl.age >= cl.life) { cl.on = false; continue; }
         var cf = 1 - cl.age / cl.life;
         var cr = CLOUD_R * (0.5 + cf * 0.7);
-        ctx.globalAlpha = cf * 0.6;
+        ctx.globalAlpha = cf * CLOUD_A;
         ctx.drawImage(cloudSprite, cl.x - cr, cl.y - cr, cr * 2, cr * 2);
       }
 
@@ -505,11 +546,28 @@
     }, { threshold: 0 });
     io.observe(canvas);
 
-    resize(); // also paints the reduced-motion static frame if applicable
+    applyTheme(); // set palette + background from CSS before the first paint
+    resize();     // also paints the reduced-motion static frame if applicable
+
+    // React to the palette toggle (light <-> dark) live, without a reload.
+    var schemeObs = new MutationObserver(function () {
+      applyTheme();
+      // Reset the trail buffer to the new background so old-theme streaks do not
+      // linger; re-bake the static frame if we are in reduced-motion mode.
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, w, h);
+      if (reduced.matches) drawStatic();
+    });
+    schemeObs.observe(document.body, {
+      attributes: true, attributeFilter: ["data-md-color-scheme"]
+    });
 
     teardown = function () {
       stop();
       io.disconnect();
+      schemeObs.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);

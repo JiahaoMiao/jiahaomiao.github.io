@@ -45,6 +45,8 @@ theme:
   palette:
     # 1. Automatic switching based on OS preference
     - media: "(prefers-color-scheme)"
+      primary: black              # match the explicit Light palette (was indigo by default)
+      accent: deep purple
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode

@@ -6,6 +6,11 @@
   <style>
     /* Hide the header shadow on home for cleaner look */
     .md-header { position: absolute; background: transparent; box-shadow: none; width: 100%; }
+    /* The transparent header sits over the hero. Its icons/title default to the
+       primary's contrast colour (white) — correct over the dark hero, but
+       invisible over the LIGHT hero. In light mode force them dark so they stay
+       legible (and the palette toggle stays findable on the landing page). */
+    [data-md-color-scheme="default"] .md-header { color: #141a24; }
     /* Force main container to touch edges */
     .md-main__inner { margin-top: 0; }
 

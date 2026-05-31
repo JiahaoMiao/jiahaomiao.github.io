@@ -96,6 +96,8 @@ repo = "fontawesome/brands/github"
 # Color palettes (auto / light / dark), mirroring the previous mkdocs setup.
 [[project.theme.palette]]
 media = "(prefers-color-scheme)"
+primary = "black"            # match the explicit Light palette (was indigo by default)
+accent = "deep purple"
 toggle.icon = "material/brightness-auto"
 toggle.name = "Switch to light mode"
 
