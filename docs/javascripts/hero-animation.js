@@ -2,9 +2,10 @@
  * Hero animation — "collider event display"
  *
  * A continuous ATLAS/CMS-style transverse (r-phi) event display. Collisions
- * fire from an interaction point; charged tracks radiate outward through three
- * faint detector rings (tracker -> EM calorimeter -> hadron calorimeter),
- * bending in a single uniform magnetic field.
+ * fire from an interaction point; charged tracks radiate outward through a
+ * layered detector — beam pipe, four silicon tracker layers, a segmented EM
+ * calorimeter ring, a segmented hadron calorimeter ring, and an outer ring of
+ * muon chambers — bending in a single uniform magnetic field.
  *
  * Physics (one global field, momentum-driven curvature):
  *   - Each track samples a momentum p (steeply-falling spectrum) and a polar
@@ -20,28 +21,34 @@
  *
  * Detector response (tracks are absorbed where they belong):
  *   - Electrons / photons (EM) shower at the ECAL: a forward-collimated cloud of
- *     tiny curling secondaries (pair production / bremsstrahlung), plus a glowing
- *     ECAL energy deposit, then they stop.
- *   - Charged hadrons punch through to the HCAL, drop a warm energy deposit, stop.
- *   - Muons are minimum-ionizing: they spear straight through every layer and
- *     escape the frame. Rare and hard, so they read as crisp radial spears.
- *   - Calorimeter deposits are bright arc "cells" on the rings; a jet's collimated
- *     tracks land together -> a hot cluster, the signature event-display look.
+ *     tiny curling secondaries (pair production / bremsstrahlung), then stop.
+ *   - Charged hadrons punch through to the HCAL and stop.
+ *   - Muons are minimum-ionizing: they spear straight through every layer,
+ *     leave a bright hit in the muon chambers, and escape the frame.
+ *   - Energy deposits are CELL-QUANTIZED TOWERS: a hit snaps to the nearest
+ *     calorimeter cell and fills it with a radial energy bar that grows outward
+ *     with deposited energy — the classic event-display look. Two tracks landing
+ *     in the same live cell SUM their energy (real calorimetry), re-pulsing the
+ *     tower; a jet's collimated tracks pile up into one hot cluster.
  *
  * Interaction:
  *   - Click / tap creates a collision (a displaced "secondary vertex") at that
- *     point. Tracks still bend in the same global field and are still absorbed
- *     at the rings (which stay centred on the detector), so it stays physically
- *     coherent. Hovering does nothing — only a click fires an event.
- *   - The listener is passive, so a tap still lets the page scroll on mobile.
+ *     point — anywhere on the hero, including over the title text, because the
+ *     listener sits on the hero container, not the canvas (the text layer sits
+ *     above the canvas and used to swallow the events). Clicks on the buttons
+ *     are left alone so they still navigate. Each vertex emits a brief
+ *     expanding shockwave ring. The listener is passive, so a tap still lets
+ *     the page scroll on mobile.
  *
  * Resource budget (the whole point):
  *   - The rAF loop STOPS when the hero is off-screen (IntersectionObserver) or
  *     the tab is hidden (visibilitychange) -> ~0 CPU/GPU when not visible.
  *   - prefers-reduced-motion -> a single static, baked event, no animation.
+ *   - Detector geometry is built ONCE per resize as Path2D objects -> four
+ *     stroke calls per frame, no per-frame path building, no extra canvas.
  *   - No shadowBlur and no per-frame gradient/string allocation (both expensive);
- *     glow sprites are built once, colours are constant strings, fade uses
- *     globalAlpha.
+ *     glow/head sprites are built once per theme, colours are constant strings,
+ *     fade uses globalAlpha.
  *   - Fixed object pools (tracks + shower clouds + calo deposits) -> zero
  *     allocation inside the loop. Showers reuse short-lived pooled track slots;
  *     total active tracks are hard-capped (MAX).
@@ -64,34 +71,42 @@
     var canvas = document.getElementById("hero-canvas");
     if (!canvas) return; // not the home page
     var ctx = canvas.getContext("2d", { alpha: false });
+    var hero = canvas.parentElement; // .hero-container (owns pointer events)
     var heroContent = document.querySelector(".hero-content");
     var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     // ---- configuration ----------------------------------------------------
-    var PI2       = Math.PI * 2;
+    var PI2 = Math.PI * 2;
 
     // Two render palettes (applied live by applyTheme). Geometry + physics are
     // identical across themes; only the colours and the glow compositing differ:
     //   - DARK : bright tracks + additive ("lighter") glow on a slate field.
-    //   - LIGHT: dark "ink" tracks + saturated deposits drawn normally on a light
+    //   - LIGHT: dark "ink" tracks + saturated towers drawn normally on a light
     //            field. Additive glow is invisible on light, so the glow layer
     //            falls back to source-over (a soft colour haze, not white glow).
     // The hero background is deliberately NOT hard-coded: applyTheme() reads it
     // from the themed .hero-container so the canvas always matches the container
     // (one source of truth). track[] is indexed by ci (see *_CIS below).
+    // Track hues mirror their destination: warm hadrons -> warm HCAL towers,
+    // azure EM -> blue ECAL towers, crimson muons -> crimson chamber hits.
     var PAL_DARK = {
-      track: ["#ffb347", "#ff8c2a", "#ffd23a", "#4ab3ff", "#28e0ff", "#cfe8ff", "#ffffff"],
-      ring: "150, 170, 200", ringA: [0.05, 0.075, 0.06],
-      depEcal: "#bfe6ff", depHcal: "#ff7a3c",
+      track: ["#ffc14f", "#ff8e3c", "#ff6757", "#46c8ff", "#7aa2ff", "#b9e7ff", "#ff4d6d"],
+      ring: "150, 170, 200", ringA: [0.05, 0.085, 0.028, 0.07],
+      dep: ["#5fd4ff", "#ffa14f", "#ff6b8f"],
       glowOp: "lighter", flash: "#ffffff", cloud: "#aee0ff",
-      flashA: 1.0, cloudA: 0.60, depBloomA: 0.22, depCoreA: 0.45
+      // Additive accents must stay tiny: against the 0.14 trail-fade they pile
+      // up to roughly 7x their per-frame alpha, so anything sustained above
+      // ~0.1 saturates to white.
+      flashA: 1.0, cloudA: 0.60, depBloomA: 0.06, depCoreA: 0.40,
+      depCapA: 0.30, headA: 0.50
     };
     var PAL_LIGHT = {
-      track: ["#c2410c", "#9a3412", "#b45309", "#1d4ed8", "#0e7490", "#64748b", "#0b1220"],
-      ring: "40, 52, 74", ringA: [0.10, 0.13, 0.11],
-      depEcal: "#1d4ed8", depHcal: "#ea580c",
+      track: ["#c2410c", "#9a3412", "#b91c1c", "#1d4ed8", "#0e7490", "#64748b", "#be123c"],
+      ring: "40, 52, 74", ringA: [0.10, 0.15, 0.06, 0.12],
+      dep: ["#2563eb", "#ea580c", "#be123c"],
       glowOp: "source-over", flash: "#9fb4d6", cloud: "#5b8fc9",
-      flashA: 0.45, cloudA: 0.40, depBloomA: 0.16, depCoreA: 0.55
+      flashA: 0.45, cloudA: 0.40, depBloomA: 0.14, depCoreA: 0.50,
+      depCapA: 0.70, headA: 0.50
     };
     var HADRON_CIS = [0, 1, 2];
     var EM_CIS     = [3, 4];
@@ -99,8 +114,9 @@
     var MUON_CI    = 6;
 
     // Live render colours / compositing, assigned by applyTheme().
-    var BG, BG_FADE, COLORS, RING_T, RING_E, RING_H, DEP_ECAL, DEP_HCAL;
-    var GLOW_OP, FLASH_A, CLOUD_A, DEP_BLOOM_A, DEP_CORE_A;
+    var BG, BG_FADE, COLORS, GEO_TRK, GEO_BAND, GEO_CELL, GEO_MU;
+    var DEP_COLS, FLASH_COL, GLOW_OP;
+    var FLASH_A, CLOUD_A, DEP_BLOOM_A, DEP_CORE_A, DEP_CAP_A, HEAD_A;
 
     // Particle kinds and their alpha dimming.
     var KIND_HADRON = 0, KIND_EM = 1, KIND_LOOP = 2, KIND_SHOWER = 3, KIND_MUON = 4;
@@ -116,18 +132,25 @@
     var AMBIENT    = 150;   // frames between ambient collisions (~2.5s @60fps)
     var FLASH_R    = 44;    // vertex-flash glow sprite radius, CSS px
     var CLOUD_R    = 26;    // shower-cloud glow sprite radius, CSS px
+    var N_ECAL     = 60;    // ECAL cells around the ring
+    var N_HCAL     = 36;    // HCAL cells around the ring (coarser, as in reality)
+    var CW         = [PI2 / N_ECAL, PI2 / N_HCAL]; // cell angular widths
 
     // Kinematics. FIELD is the one global magnetic field: turn-per-frame = FIELD/p
     // so curvature is strictly ∝ 1/p. SPEED (transverse speed at theta=90 deg) is
     // set in resize() so the whole event scales with the detector.
     var FIELD      = 0.036; // cyclotron turn/frame at unit momentum
     var SPEED      = 2.8;   // transverse px/frame at sin(theta)=1 (set in resize)
-    var EN_REF     = 9;     // momentum giving a full-brightness calo deposit
+    var EN_REF     = 9;     // summed cell energy giving a full-height tower
 
     // ---- state ------------------------------------------------------------
     var dpr = 1, w = 0, h = 0;
     var cx = 0, cy = 0;
-    var R_TRACKER = 0, R_ECAL = 0, R_ECAL2 = 0, R_HCAL = 0, R_HCAL2 = 0;
+    // Layer radii (set in resize). *_IN = absorption / tower-base radius.
+    var R_ECAL_IN = 0, R_ECAL_IN2 = 0, R_HCAL_IN = 0, R_HCAL_IN2 = 0;
+    var R_MUON = 0, R_MUON2 = 0, R_MU_T0 = 0, R_MU_T1 = 0;
+    var DEP_RIN = [0, 0], DEP_H = [0, 0]; // tower base radius / max bar height
+    var geoTrk, geoBands, geoCells, geoMuon; // Path2D detector geometry
     var rafId = 0, running = false, visible = false, started = false;
     var ambientTimer = 0, flash = 0, flashX = 0, flashY = 0;
 
@@ -142,12 +165,16 @@
     for (i = 0; i < CLOUDS; i++) {
       clouds[i] = { on: false, x: 0, y: 0, age: 0, life: 1 };
     }
+    // ring: 0 = ECAL tower, 1 = HCAL tower, 2 = muon-chamber hit. For towers,
+    // `cell` is the integer cell index; for muon hits it stores the raw angle.
+    // a0/a1/rOut/da cache this frame's geometry between the two render passes.
     var deps = new Array(DEPS);
     for (i = 0; i < DEPS; i++) {
-      deps[i] = { on: false, ang: 0, r: 0, age: 0, life: 1, mag: 0, col: DEP_ECAL };
+      deps[i] = { on: false, ring: 0, cell: 0, age: 0, life: 1, en: 0,
+                  a0: 0, a1: 0, rOut: 0, da: 0 };
     }
 
-    // ---- glow sprites (hotspots only, built once) -------------------------
+    // ---- glow / head sprites (hotspots only, built once per theme) ---------
     function rgba(hex, a) {
       var n = parseInt(hex.slice(1), 16);
       return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," +
@@ -166,14 +193,15 @@
       c.fillRect(0, 0, d, d);
       return s;
     }
-    var flashSprite, cloudSprite; // (re)built per theme by applyTheme()
+    var flashSprite, cloudSprite;     // (re)built per theme by applyTheme()
+    var headSprites = new Array(7);   // tiny glow dot per track colour
 
     // Apply the active colour scheme. Reads the themed hero background straight
-    // from CSS, swaps the track/ring/deposit palette + glow compositing, and
-    // rebuilds the glow sprites. Called at start-up and whenever the palette
-    // toggle flips <body data-md-color-scheme> ("default" = light, else dark).
+    // from CSS, swaps the track/geometry/tower palette + glow compositing, and
+    // rebuilds the sprites. Called at start-up and whenever the palette toggle
+    // flips <body data-md-color-scheme> ("default" = light, else dark).
     function readBgRGB() {
-      var src = canvas.parentElement || canvas;
+      var src = hero || canvas;
       var m = /(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(
                 getComputedStyle(src).backgroundColor || "");
       return m ? (m[1] + ", " + m[2] + ", " + m[3]) : "30, 33, 41";
@@ -185,15 +213,19 @@
       BG = "rgb(" + rgb + ")";
       BG_FADE = "rgba(" + rgb + ", 0.14)";
       COLORS = P.track;
-      RING_T = "rgba(" + P.ring + ", " + P.ringA[0] + ")";
-      RING_E = "rgba(" + P.ring + ", " + P.ringA[1] + ")";
-      RING_H = "rgba(" + P.ring + ", " + P.ringA[2] + ")";
-      DEP_ECAL = P.depEcal; DEP_HCAL = P.depHcal;
+      GEO_TRK  = "rgba(" + P.ring + ", " + P.ringA[0] + ")"; // beam pipe + tracker
+      GEO_BAND = "rgba(" + P.ring + ", " + P.ringA[1] + ")"; // calo band edges
+      GEO_CELL = "rgba(" + P.ring + ", " + P.ringA[2] + ")"; // cell divider grid
+      GEO_MU   = "rgba(" + P.ring + ", " + P.ringA[3] + ")"; // muon chambers
+      DEP_COLS = P.dep;
+      FLASH_COL = P.flash;
       GLOW_OP = P.glowOp;
       FLASH_A = P.flashA; CLOUD_A = P.cloudA;
       DEP_BLOOM_A = P.depBloomA; DEP_CORE_A = P.depCoreA;
+      DEP_CAP_A = P.depCapA; HEAD_A = P.headA;
       flashSprite = glowSprite(P.flash, FLASH_R);
       cloudSprite = glowSprite(P.cloud, CLOUD_R);
+      for (var s = 0; s < 7; s++) headSprites[s] = glowSprite(P.track[s], 8);
     }
 
     // ---- spawning ---------------------------------------------------------
@@ -225,19 +257,27 @@
         }
       }
     }
-    // A glowing calorimeter cell where a track lands on its ring. mag (0..1)
-    // scales brightness + angular width with the deposited energy.
-    function addDeposit(ang, r, col, en) {
-      var mag = en / EN_REF; if (mag > 1) mag = 1; mag = 0.3 + 0.7 * mag;
+    // Deposit energy where a track lands. Towers (ring 0/1) snap to the cell
+    // grid; a hit on an already-glowing cell SUMS into it and re-pulses it
+    // (age reset) instead of stacking a duplicate — jets build hot clusters.
+    function addDeposit(ring, ang, en) {
+      if (ang < 0) ang += PI2;
+      var cell = ring < 2 ? ((ang / CW[ring]) | 0) : ang;
+      var free = -1;
       for (var d = 0; d < DEPS; d++) {
         var dp = deps[d];
-        if (!dp.on) {
-          dp.on = true; dp.ang = ang; dp.r = r; dp.age = 0;
-          dp.life = 26 + ((Math.random() * 30) | 0);
-          dp.mag = mag; dp.col = col;
-          return;
-        }
+        if (dp.on) {
+          if (ring < 2 && dp.ring === ring && dp.cell === cell) {
+            dp.en += en; dp.age = 0;
+            return;
+          }
+        } else if (free < 0) { free = d; }
       }
+      if (free < 0) return;
+      var nd = deps[free];
+      nd.on = true; nd.ring = ring; nd.cell = cell; nd.age = 0; nd.en = en;
+      nd.life = ring === 2 ? 24 + ((Math.random() * 14) | 0)
+                           : 70 + ((Math.random() * 40) | 0);
     }
 
     // An EM cascade: a forward-collimated cloud of tiny, faint, tightly-curling
@@ -323,14 +363,12 @@
       ctx.fillRect(0, 0, w, h);
 
       // Faint detector geometry (re-stroked each frame so the trail-fade does
-      // not erase it). Three arcs -> negligible cost.
+      // not erase it). Prebuilt Path2D objects -> four cheap stroke calls.
       ctx.lineWidth = 1;
-      ctx.strokeStyle = RING_T;
-      ctx.beginPath(); ctx.arc(cx, cy, R_TRACKER, 0, PI2); ctx.stroke();
-      ctx.strokeStyle = RING_E;
-      ctx.beginPath(); ctx.arc(cx, cy, R_ECAL, 0, PI2); ctx.stroke();
-      ctx.strokeStyle = RING_H;
-      ctx.beginPath(); ctx.arc(cx, cy, R_HCAL, 0, PI2); ctx.stroke();
+      ctx.strokeStyle = GEO_CELL; ctx.stroke(geoCells);
+      ctx.strokeStyle = GEO_TRK;  ctx.stroke(geoTrk);
+      ctx.strokeStyle = GEO_BAND; ctx.stroke(geoBands);
+      ctx.strokeStyle = GEO_MU;   ctx.stroke(geoMuon);
 
       // Tracks: integrate, draw a crisp segment old -> new, then test absorption.
       ctx.lineCap = "round";
@@ -371,15 +409,15 @@
         // Detector response: absorb the track in the appropriate calorimeter.
         if (!p.showered) {
           if (p.kind === KIND_EM) {
-            if (r2 >= R_ECAL2) { // shower + glowing ECAL deposit, then stop
+            if (r2 >= R_ECAL_IN2) { // shower + ECAL tower, then stop
               p.showered = true;
               shower(p.x, p.y, 0, Math.atan2(p.vy, p.vx));
-              addDeposit(Math.atan2(ddy, ddx), R_ECAL, DEP_ECAL, p.en);
+              addDeposit(0, Math.atan2(ddy, ddx), p.en);
               p.on = false;
             }
           } else if (p.kind === KIND_HADRON || p.kind === KIND_LOOP) {
-            if (r2 >= R_HCAL2) { // warm HCAL deposit, then stop
-              addDeposit(Math.atan2(ddy, ddx), R_HCAL, DEP_HCAL, p.en);
+            if (r2 >= R_HCAL_IN2) { // HCAL tower, then stop
+              addDeposit(1, Math.atan2(ddy, ddx), p.en);
               p.on = false;
             }
           } else if (p.kind === KIND_SHOWER && p.em) {
@@ -387,36 +425,106 @@
               p.showered = true;
               shower(p.x, p.y, p.depth, Math.atan2(p.vy, p.vx));
             }
+          } else if (p.kind === KIND_MUON) {
+            if (r2 >= R_MUON2) { // chamber hit; minimum-ionizing -> flies on
+              p.showered = true;
+              addDeposit(2, Math.atan2(ddy, ddx), 1);
+            }
           }
-          // KIND_MUON: minimum-ionizing -> never absorbed, escapes the frame.
         }
       }
 
-      // Glow layer: calorimeter deposits, vertex flash, shower clouds. Additive
-      // ("lighter") in dark mode; soft source-over colour haze in light mode.
-      ctx.globalCompositeOperation = GLOW_OP;
-      ctx.lineCap = "round";
+      // Deposits, pass 1 (still source-over): age, then draw the SOLID parts —
+      // tower core fills and muon-chamber dashes. Source-over repainting
+      // converges to the true colour at a stable opacity, so towers stay
+      // saturated blue/orange instead of piling up to white under "lighter".
+      ctx.lineCap = "butt";
       for (var d = 0; d < DEPS; d++) {
         var dp = deps[d];
         if (!dp.on) continue;
         dp.age++;
         if (dp.age >= dp.life) { dp.on = false; continue; }
         var df = 1 - dp.age / dp.life;
-        var dw = 0.04 + 0.12 * dp.mag;     // angular half-width grows with energy
-        ctx.strokeStyle = dp.col;
-        // Soft outer bloom, then a brighter core.
-        ctx.globalAlpha = df * DEP_BLOOM_A * dp.mag;
-        ctx.lineWidth = 10 + 18 * dp.mag;
-        ctx.beginPath(); ctx.arc(cx, cy, dp.r, dp.ang - dw, dp.ang + dw); ctx.stroke();
-        ctx.globalAlpha = df * (DEP_CORE_A + 0.4 * dp.mag);
-        ctx.lineWidth = 4 + 8 * dp.mag;
-        ctx.beginPath(); ctx.arc(cx, cy, dp.r, dp.ang - dw, dp.ang + dw); ctx.stroke();
+        var da = df * 1.6; if (da > 1) da = 1;     // hold, then fade out
+        dp.da = da;
+        var col = DEP_COLS[dp.ring];
+        if (dp.ring === 2) {
+          // Muon-chamber hit: a crisp radial dash across the chamber band.
+          ctx.strokeStyle = col;
+          ctx.globalAlpha = da * 0.85;
+          ctx.lineWidth = 2;
+          var mc = Math.cos(dp.cell), ms = Math.sin(dp.cell);
+          ctx.beginPath();
+          ctx.moveTo(cx + mc * R_MU_T0, cy + ms * R_MU_T0);
+          ctx.lineTo(cx + mc * R_MU_T1, cy + ms * R_MU_T1);
+          ctx.stroke();
+          continue;
+        }
+        // Calorimeter tower: a cell-wide energy bar growing radially outward,
+        // popping in on each (re-)hit and sinking back as it fades.
+        var mag = dp.en / EN_REF; if (mag > 1) mag = 1; mag = 0.3 + 0.7 * mag;
+        var g = dp.age < 5 ? dp.age / 5 : 1;       // pop-in / re-pulse
+        var hf = df < 0.45 ? df / 0.45 : 1;        // sink back near the end
+        var rIn = DEP_RIN[dp.ring];
+        var cw = CW[dp.ring], gap = cw * 0.09;
+        dp.rOut = rIn + DEP_H[dp.ring] * mag * g * hf;
+        dp.a0 = dp.cell * cw + gap;
+        dp.a1 = dp.a0 + cw - 2 * gap;
+        ctx.fillStyle = col;
+        ctx.globalAlpha = da * (DEP_CORE_A + 0.3 * mag);
+        ctx.beginPath();
+        ctx.arc(cx, cy, rIn, dp.a0, dp.a1);
+        ctx.arc(cx, cy, dp.rOut, dp.a1, dp.a0, true);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Glow layer: tower bloom + caps, track heads, vertex flash + shockwave,
+      // shower clouds. Additive ("lighter") in dark mode; a soft source-over
+      // colour haze in light mode.
+      ctx.globalCompositeOperation = GLOW_OP;
+
+      // Deposits, pass 2: a soft halo around each tower and a bright cap line
+      // along its outer edge (geometry cached by pass 1).
+      for (d = 0; d < DEPS; d++) {
+        var dq = deps[d];
+        if (!dq.on || dq.ring === 2) continue;
+        var qIn = DEP_RIN[dq.ring];
+        ctx.strokeStyle = DEP_COLS[dq.ring];
+        ctx.globalAlpha = dq.da * DEP_BLOOM_A;
+        ctx.lineWidth = (dq.rOut - qIn) + 12;
+        ctx.beginPath();
+        ctx.arc(cx, cy, (qIn + dq.rOut) * 0.5, dq.a0, dq.a1);
+        ctx.stroke();
+        ctx.globalAlpha = dq.da * DEP_CAP_A;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, dq.rOut, dq.a0, dq.a1);
+        ctx.stroke();
+      }
+
+      // Glowing comet heads at each live track tip (tiny prebuilt sprites).
+      for (k = 0; k < MAX; k++) {
+        var q = pool[k];
+        if (!q.on) continue;
+        var qf = 1 - q.age / q.life;
+        var qa = qf * 1.5; if (qa > 1) qa = 1;
+        var qr = 1.8 + q.lw * 1.8;
+        ctx.globalAlpha = qa * DIM[q.kind] * HEAD_A;
+        ctx.drawImage(headSprites[q.ci], q.x - qr, q.y - qr, qr * 2, qr * 2);
       }
 
       if (flash > 0.02) {
         var fr = FLASH_R * (0.6 + flash * 0.8);
         ctx.globalAlpha = flash * FLASH_A;
         ctx.drawImage(flashSprite, flashX - fr, flashY - fr, fr * 2, fr * 2);
+        // Expanding shockwave ring, born at the vertex, fading as it grows.
+        ctx.strokeStyle = FLASH_COL;
+        ctx.globalAlpha = flash * 0.5 * FLASH_A;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(flashX, flashY, 10 + (1 - flash) * 110, 0, PI2);
+        ctx.stroke();
         flash *= 0.88;
       } else {
         flash = 0;
@@ -462,7 +570,55 @@
       ctx.fillRect(0, 0, w, h);
       fireEvent(cx, cy, 0);              // a baked event...
       fireEvent(cx, cy, Math.PI * 0.5);  // ...plus a second jet axis for richness
-      for (var n = 0; n < 110; n++) frame(); // develop tracks/showers, then freeze
+      for (var n = 0; n < 130; n++) frame(); // develop tracks/towers, then freeze
+    }
+
+    // ---- detector geometry (Path2D, rebuilt only on resize) ----------------
+    // Transverse slice of a general-purpose detector: beam pipe, four silicon
+    // tracker layers, segmented ECAL + HCAL annuli (radial cell dividers), and
+    // eight outer muon chambers (annular boxes with gaps between them).
+    function buildGeometry(baseR) {
+      var rEcalOut = baseR * 0.305, rHcalOut = baseR * 0.44;
+      var rMuIn = baseR * 0.465, rMuOut = baseR * 0.495;
+      var i, a, ca, sa;
+
+      geoTrk = new Path2D();
+      geoTrk.arc(cx, cy, Math.max(3, baseR * 0.012), 0, PI2); // beam pipe
+      var trkR = [0.055, 0.095, 0.14, 0.185];
+      for (i = 0; i < 4; i++) {
+        geoTrk.moveTo(cx + baseR * trkR[i], cy);
+        geoTrk.arc(cx, cy, baseR * trkR[i], 0, PI2);
+      }
+
+      geoBands = new Path2D(); // calorimeter band edges
+      var bandR = [R_ECAL_IN, rEcalOut, R_HCAL_IN, rHcalOut];
+      for (i = 0; i < 4; i++) {
+        geoBands.moveTo(cx + bandR[i], cy);
+        geoBands.arc(cx, cy, bandR[i], 0, PI2);
+      }
+
+      geoCells = new Path2D(); // radial cell dividers in both calo bands
+      for (i = 0; i < N_ECAL; i++) {
+        a = i * CW[0]; ca = Math.cos(a); sa = Math.sin(a);
+        geoCells.moveTo(cx + ca * R_ECAL_IN, cy + sa * R_ECAL_IN);
+        geoCells.lineTo(cx + ca * rEcalOut, cy + sa * rEcalOut);
+      }
+      for (i = 0; i < N_HCAL; i++) {
+        a = i * CW[1]; ca = Math.cos(a); sa = Math.sin(a);
+        geoCells.moveTo(cx + ca * R_HCAL_IN, cy + sa * R_HCAL_IN);
+        geoCells.lineTo(cx + ca * rHcalOut, cy + sa * rHcalOut);
+      }
+
+      geoMuon = new Path2D(); // eight outer chambers, offset off the x-axis
+      var seg = PI2 / 8, pad = 0.07;
+      for (i = 0; i < 8; i++) {
+        var a0 = i * seg + seg * 0.5 + pad, a1 = (i + 1) * seg + seg * 0.5 - pad;
+        geoMuon.moveTo(cx + Math.cos(a0) * rMuIn, cy + Math.sin(a0) * rMuIn);
+        geoMuon.arc(cx, cy, rMuIn, a0, a1);
+        geoMuon.lineTo(cx + Math.cos(a1) * rMuOut, cy + Math.sin(a1) * rMuOut);
+        geoMuon.arc(cx, cy, rMuOut, a1, a0, true);
+        geoMuon.closePath();
+      }
     }
 
     // ---- sizing -----------------------------------------------------------
@@ -475,10 +631,14 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS px
       cx = w * 0.5; cy = h * 0.5;             // interaction point (detector centre)
       var baseR = Math.min(w, h);
-      R_TRACKER = baseR * 0.20;
-      R_ECAL = baseR * 0.33;  R_ECAL2 = R_ECAL * R_ECAL;
-      R_HCAL = baseR * 0.46;  R_HCAL2 = R_HCAL * R_HCAL;
-      SPEED  = baseR * 0.0036;                // transverse speed scales with size
+      R_ECAL_IN = baseR * 0.235; R_ECAL_IN2 = R_ECAL_IN * R_ECAL_IN;
+      R_HCAL_IN = baseR * 0.345; R_HCAL_IN2 = R_HCAL_IN * R_HCAL_IN;
+      R_MUON    = baseR * 0.48;  R_MUON2    = R_MUON * R_MUON;
+      R_MU_T0   = baseR * 0.46;  R_MU_T1    = baseR * 0.50; // muon-hit dash span
+      DEP_RIN[0] = R_ECAL_IN; DEP_H[0] = baseR * 0.105; // ECAL towers
+      DEP_RIN[1] = R_HCAL_IN; DEP_H[1] = baseR * 0.115; // HCAL towers
+      buildGeometry(baseR);
+      SPEED = baseR * 0.0036;                 // transverse speed scales with size
       flashX = cx; flashY = cy;
       ctx.globalCompositeOperation = "source-over";
       ctx.globalAlpha = 1;
@@ -515,16 +675,20 @@
       else if (visible && !document.hidden) start();
     }
     // Click / tap -> a collision at the pointer (a displaced secondary vertex).
-    // Hovering deliberately does nothing; only a press fires an event.
+    // Listens on the hero CONTAINER so it works over the title text too (the
+    // text layer covers the canvas and would swallow canvas-bound events).
+    // Clicks on links (the CV / Publications buttons) are left to navigate.
     function onPointerDown(e) {
-      fireEvent(e.offsetX, e.offsetY, null);
+      if (e.target.closest && e.target.closest("a")) return;
+      var r = canvas.getBoundingClientRect();
+      fireEvent(e.clientX - r.left, e.clientY - r.top, null);
     }
 
     window.addEventListener("resize", onResize, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     reduced.addEventListener("change", onReducedChange);
-    canvas.addEventListener("pointerdown", onPointerDown, { passive: true });
+    hero.addEventListener("pointerdown", onPointerDown, { passive: true });
 
     var io = new IntersectionObserver(function (entries) {
       visible = entries[0].isIntersecting;
@@ -559,7 +723,7 @@
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       reduced.removeEventListener("change", onReducedChange);
-      canvas.removeEventListener("pointerdown", onPointerDown);
+      hero.removeEventListener("pointerdown", onPointerDown);
     };
   });
 })();

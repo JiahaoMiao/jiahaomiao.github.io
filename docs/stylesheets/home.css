@@ -11,6 +11,7 @@
   background: #ffffff; /* White field, matching the page background (deep slate under the dark scheme below) */
   overflow: hidden;
   margin-bottom: 2rem; /* Spacing before content starts */
+  cursor: crosshair; /* hint: click/tap anywhere fires a collision (links keep their pointer) */
 }
 
 canvas#hero-canvas {
