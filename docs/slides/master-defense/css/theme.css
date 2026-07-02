@@ -1,0 +1,379 @@
+/* ============================================================================
+   Defense-deck visual identity  —  "measurement readout"
+   Loads AFTER reveal's white theme and custom.css; overrides by load order.
+
+   Grounded in the thesis: the palette is taken from the manim plots the deck
+   embeds (electron/NLO BLUE_D = #29ABCA), and the signature mark is the thesis
+   result itself — two curves (Minimal-Prescription solid vs standard dashed)
+   that track together and SPLIT AT THE PEAK. White background is kept on
+   purpose so the white-background animation slides blend without boxes.
+
+   To swap in a distinct display face later: drop a woff2 in ../fonts/, add an
+   @font-face, and set --font-display. Everything else keys off the variables.
+   ============================================================================ */
+
+:root {
+  /* palette — cool, plot-derived, committee-safe on white */
+  --ink:        #18242e;   /* deep blue-charcoal, near-black (cool) */
+  --ink-soft:   #586673;   /* secondary text, captions */
+  --accent:     #15788f;   /* deepened teal from BLUE_D — links, keywords, rules */
+  --accent-lit: #29abca;   /* exact BLUE_D — the live "solid" signature curve */
+  --dash:       #9aa6af;   /* the "standard / dashed" companion curve */
+  --alert:      #e65a4c;   /* exact RED_D — used once, for the disagreement */
+  --hair:       #dde3e7;   /* hairline rules */
+  --paper:      #ffffff;   /* background stays white (videos blend) */
+
+  /* type — robust + offline. Body = vendored Source Sans Pro; the "readout"
+     voice = system monospace (Consolas/Cascadia on Windows, SF Mono/Menlo on
+     mac, Liberation Mono on Linux); math = KaTeX Computer Modern. */
+  --font-body: "Source Sans Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-body);            /* swap-in hook for a display face */
+  --font-mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "SF Mono",
+               Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---- base ---------------------------------------------------------------- */
+.reveal { font-family: var(--font-body); color: var(--ink); }
+
+/* Headings: one notch heavier + tighter than stock, ink-colored. The display
+   hook lets a real display face take over later without touching markup. */
+.reveal h1,
+.reveal h2,
+.reveal h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  text-transform: none;
+  line-height: 1.08;
+}
+
+/* Section headings (content slides) carry the signature: a small accent peak
+   drawn under the title — the thesis result, miniaturised, on every slide. */
+.reveal h2 {
+  font-size: 1.34em;
+  margin-bottom: 0.55em;
+  padding-bottom: 0.18em;
+  border-bottom: 2px solid var(--hair);
+}
+.reveal section h2 { margin-bottom: 0.55em; }
+
+/* Content-dense slides (e.g. conclusions): shrink the list so it fits one screen. */
+.reveal section.dense ul li { font-size: 0.85em; margin-bottom: 0.28em; line-height: 1.3; }
+
+/* ---- the monospace "readout" voice -------------------------------------- */
+/* All metadata — kickers, references, roadmap, equation notes, affiliations,
+   slide numbers — speaks in mono, like an instrument readout. */
+.reveal .kicker,
+.reveal .roadmap,
+.reveal .ref,
+.reveal .eq-note,
+.reveal .affil,
+.reveal .byline {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.reveal .kicker {
+  font-size: 0.46em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.5em;
+}
+.reveal .roadmap { color: var(--ink-soft); letter-spacing: 0.01em; }
+.reveal .ref { color: var(--ink-soft); }
+.reveal .eq-note { color: var(--ink-soft); }
+
+/* ---- emphasis + links ---------------------------------------------------- */
+.reveal strong { color: var(--accent); font-weight: 700; }
+.reveal em { color: var(--ink); font-style: italic; }
+.reveal a { color: var(--accent); text-decoration-color: var(--hair); }
+.reveal a:hover { color: var(--accent-lit); }
+
+/* The single red note: the structural disagreement. Marked with <span class="vs">
+   (or <strong class="vs">) on the two-inversions / peak slide. */
+.reveal .vs { color: var(--alert); font-weight: 700; }
+
+/* ---- lists: tighter rhythm, accent markers ------------------------------ */
+.reveal .slides section ul { list-style: none; margin-left: 0.2em; }
+.reveal .slides section ul li {
+  position: relative;
+  padding-left: 1.1em;
+  margin-bottom: 0.3em;
+}
+.reveal .slides section ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.5em;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.reveal .lead { color: var(--ink); }
+.reveal .intro { color: var(--ink-soft); }
+
+/* ---- equations ----------------------------------------------------------- */
+.reveal .katex { color: var(--ink); }
+.reveal .katex-display { margin: 0.4em 0; }
+
+/* ---- slide number + controls + progress, in the accent ------------------ */
+.reveal .slide-number {
+  font-family: var(--font-mono);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.6em;
+  letter-spacing: 0.06em;
+  right: auto;       /* move off the nav arrows (bottom-right) ... */
+  left: 12px;        /* ... to the bottom-left */
+  bottom: 10px;
+}
+.reveal .controls { color: var(--accent); }
+.reveal .progress { color: var(--accent); height: 3px; }
+.reveal .progress span { background: var(--accent); }
+
+/* ---- backup slides: a mono "BACKUP" tab, set once ------------------------ */
+.reveal section.backup h2::after {
+  content: "BACKUP";
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.6em;
+  padding: 0.12em 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.34em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  transform: translateY(-0.25em);
+}
+
+/* ============================================================================
+   Title slide — the hero is the result: two curves splitting at the peak.
+   Sized compactly so all the title + affiliation lines fit one screen.
+   ============================================================================ */
+.reveal .title-slide .cover-figure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  margin: 0.3em 0 0.4em;
+}
+.reveal .title-slide .cover-figure .peak-hero {
+  margin: 0;                 /* the flex row centres it; drop the auto side margins */
+}
+.reveal .title-slide .side-logo {
+  height: 80px;
+  width: auto;
+  margin: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  flex: none;
+}
+/* UniMI crest is square, so it reads smaller than the wide INFN mark -- size it up. */
+.reveal .title-slide .side-logo.unimi { height: 92px; }
+.reveal .title-slide .title-main {
+  font-size: 1.12em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0 auto 0.22em;
+  max-width: 21em;
+}
+.reveal .title-slide .byline { font-size: 0.78em; color: var(--ink); margin-top: 0.5em; }
+.reveal .title-slide .byline strong { color: var(--ink); }
+.reveal .title-slide .affil { font-size: 0.62em; color: var(--ink-soft); margin: 0.13em 0; }
+.reveal .title-slide .title-ref {
+  font-family: var(--font-mono);
+  font-size: 0.5em;
+  color: var(--ink-soft);
+  margin-top: 0.7em;
+}
+.reveal .title-slide .title-ref strong { color: var(--accent); font-weight: 600; }
+
+/* the signature mark */
+.reveal .peak-hero {
+  display: block;
+  width: min(330px, 32vw);
+  height: auto;
+  margin: 0.3em auto 0.4em;
+  overflow: visible;
+}
+.reveal .peak-hero .axis { stroke: var(--hair); stroke-width: 1; }
+.reveal .peak-hero .curve-dash {
+  fill: none; stroke: var(--dash); stroke-width: 2.4;
+  stroke-dasharray: 5 5;
+}
+.reveal .peak-hero .curve-solid {
+  fill: none; stroke: var(--accent-lit); stroke-width: 3;
+  stroke-linecap: round;
+}
+.reveal .peak-hero .peak-label {
+  font-family: var(--font-mono);
+  font-size: 6px;
+  letter-spacing: 0.05em;
+  fill: var(--ink-soft);
+}
+
+/* page-load: the dashed (physical-space) curve is present from the start, then
+   the solid (N-space) curve draws over it and peaks higher — the result,
+   animated. (Drawing a line via stroke-dashoffset needs the whole length as one
+   dash, so only the solid curve is "drawn"; the dashed one just sits there.) */
+@media (prefers-reduced-motion: no-preference) {
+  /* --peak-delay: how long the dashed physical-space curve sits alone before
+     the blue N-space curve draws in over it. */
+  .reveal .peak-hero { --peak-delay: 1.6s; }
+  .reveal .peak-hero .curve-solid {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: peak-draw 1.4s cubic-bezier(0.6, 0.02, 0.2, 1) var(--peak-delay) forwards;
+  }
+  @keyframes peak-draw { to { stroke-dashoffset: 0; } }
+}
+
+/* ---- keep ANIMATION slides pristine: no chrome over the video ----------- */
+.reveal .slides section:has(video) .slide-number { display: none; }
+
+/* Scene-08 hybrid slide: the contour video shares the slide with a title +
+   equation + caption, so cap it shorter than the full-bleed video slides
+   (custom.css uses 78vh) so everything fits one screen. */
+.reveal .contour-video { max-height: 54vh; }
+
+/* Animation slides (scenes 04 & 06) whose formulae live as KaTeX above a
+   plots-only video, not baked into the render. One small centred equation line;
+   the video takes most of the screen. */
+.reveal .anim-eq { margin: 0.1em 0; }
+.reveal .anim-eq .katex { font-size: 0.72em; }
+.reveal .anim-video { max-height: 66vh; }
+/* the matched & resummed slides also carry a title line, so keep the heading
+   compact (no signature rule, tight margins) and give the video a little less
+   room. */
+.reveal .titled-anim h2 {
+  font-size: 1.0em;
+  margin: 0 0 0.05em;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.reveal .titled-anim .anim-eq { margin: 0 0 0.1em; }
+.reveal .titled-anim .anim-video { max-height: 60vh; }
+/* the resummed slide (scene 05) carries no .anim-eq line -- its formula is baked
+   into the video -- and only a compact title, so give its video much more room
+   than the matched slide (which keeps a KaTeX equation above the plots). */
+.reveal .titled-anim-wide .anim-video { max-height: 76vh; }
+/* (the matched & resummed slides carry a static KaTeX title above a video; the
+   resummed slide's equation transition is rendered in its video, not here.) */
+
+/* ---- the resummation-ambiguity slide: ln N vs ln(1/y) --------------------
+   Two inversions of the SAME N-space Sudakov, colour-keyed to the result
+   curves: Minimal Prescription = the "solid" signature (accent-lit), CTTW
+   analytic = the "dashed" companion (dash). The disagreement uses --alert,
+   the one place red is spent in the deck. */
+.reveal .ambiguity .cols {
+  display: flex;
+  gap: 1.1em;
+  align-items: stretch;
+  justify-content: center;
+  margin: 0.45em 0 0.35em;
+}
+.reveal .ambiguity .col {
+  flex: 1 1 0;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.45em 0.75em 0.55em;
+  text-align: left;
+}
+.reveal .ambiguity .col--np   { border-top-color: var(--accent-lit); }
+.reveal .ambiguity .col--cttw { border-top-color: var(--dash); }
+.reveal .ambiguity .col h3 { margin: 0 0 0.25em; font-size: 0.8em; }
+.reveal .ambiguity .col--np   h3 { color: var(--accent-lit); }
+.reveal .ambiguity .col--cttw h3 { color: var(--dash); }
+.reveal .ambiguity .col p { font-size: 0.7em; margin: 0.28em 0; color: var(--ink-soft); }
+.reveal .ambiguity .col .resum { color: var(--ink); font-weight: 600; margin-top: 0.4em; }
+.reveal .ambiguity .col .katex { font-size: 0.95em; }
+.reveal .ambiguity .bridge { font-size: 0.82em; margin: 0.25em 0 0.35em; }
+.reveal .ambiguity .punch {
+  display: inline-block;
+  border: 1px solid var(--alert);
+  border-radius: 6px;
+  padding: 0.35em 0.85em;
+  font-size: 0.82em;
+  color: var(--alert);
+}
+.reveal .ambiguity .punch strong { color: var(--alert); }
+.reveal .ambiguity .punch .cite { color: var(--ink-soft); font-size: 0.8em; }
+
+/* alpha_s motivation slide: the dense, near-square PDG compilation auto-fits the
+   space left under the heading via reveal's r-stretch, so it never clips on any
+   projector. (Don't set max-height here -- it would override r-stretch's
+   max-height:none and re-introduce the clip.) Centre it and keep it boxless like
+   the videos so the white figure blends on white. */
+.reveal .pdg-figure {
+  display: block;
+  margin: 0 auto;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+/* "tight" slides stack several display equations on one screen (the Sudakov
+   slide; the N-space factorization backup). Shrink the math and compress the
+   vertical rhythm so nothing clips off the right edge or the bottom. */
+.reveal section.tight h2 { margin-bottom: 0.3em; }
+.reveal section.tight .intro { font-size: 0.78em; margin: 0.3em 0; }
+.reveal section.tight p { margin: 0.34em 0; }
+.reveal section.tight .katex { font-size: 0.84em; }
+.reveal section.tight .katex-display { margin: 0.22em 0; }
+
+/* ---- introduction slide: the Standard Model & QCD ------------------------
+   Two boxless columns on white, like the rest of the deck: the SM particle
+   table (left) and the QCD story with the alpha_s(mu) running plot (right).
+   Both figures are height-capped so the slide never clips on the 1280x720
+   canvas; the alpha_s value / running here set up the later tension slide. */
+.reveal .sm-intro h2 { margin-bottom: 0.3em; }
+.reveal .sm-intro .sm-cols {
+  display: flex;
+  gap: 1.8em;
+  align-items: stretch;
+  justify-content: center;
+}
+.reveal .sm-intro .sm-col--sm { flex: 0 0 41%; text-align: center; }
+.reveal .sm-intro .sm-col--qcd {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+}
+.reveal .sm-intro h3 {
+  font-size: 0.82em;
+  margin: 0 0 0.3em;
+  color: var(--accent);
+}
+.reveal .sm-intro .sm-figure {
+  display: block;
+  margin: 0 auto;
+  max-height: 48vh;
+  max-width: 100%;
+  width: auto;
+  border: none; background: none; box-shadow: none;
+}
+.reveal .sm-intro .sm-cap {
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  margin: 0.7em auto 0;
+  max-width: 27em;
+}
+.reveal .sm-intro .sm-col--qcd ul { font-size: 0.8em; margin: 0.1em 0 0; }
+.reveal .sm-intro .sm-col--qcd li { margin-bottom: 0.3em; line-height: 1.28; }
+.reveal .sm-intro .sm-plot {
+  display: block;
+  margin: auto;
+  max-height: 37vh;
+  max-width: 100%;
+  width: auto;
+  border: none; background: none; box-shadow: none;
+}

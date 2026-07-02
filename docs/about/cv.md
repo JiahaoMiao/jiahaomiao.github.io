@@ -9,15 +9,21 @@ I am currently seeking **PhD opportunities** for Fall 2026.
 
 ## :mortar_board: Education
 
-### **2024 - Ongoing | M.Sc in Physics**
+### **23/09/2024 - 02/07/2026 | M.Sc in Physics**
 :round_pushpin: **[Università degli Studi di Milano](https://www.fisica.unimi.it/ecm/home)**
 <br> :book: *Major: Theoretical Physics*
 
 * **Supervisor:** [Prof. Giancarlo Ferrera](https://www.unimi.it/it/ugov/person/giancarlo-ferrera)
 * **Focus:** Quantum Field Theory, Standard Model Phenomenology, Computational Physics, QCD
+
+[Download Thesis](../assets/pdfs/Tesi_Jiahao_Miao_51593A.pdf){ .md-button .md-button--small }
+[Defense Slides](/slides/master-defense/){ .md-button .md-button--small target=_blank }
+
+*Interactive defense slides (reveal.js) with the manim animations — navigate with the arrow keys, press <kbd>F</kbd> for fullscreen and <kbd>Esc</kbd> for the slide overview.*
+
 ---
 
-### **2021 - 2024 | B.Sc in Physics**
+### **20/09/2021 - 22/07/2024 | B.Sc in Physics**
 :round_pushpin: **[Università degli Studi di Milano](https://www.fisica.unimi.it/ecm/home)**
 
 * **Thesis Title:** *"Resummation of QCD Large Infrared Logarithms for Thrust Distribution in electron positron annihilation"*
@@ -28,29 +34,36 @@ I am currently seeking **PhD opportunities** for Fall 2026.
 
 ---
 
+### **12/09/2016-01/07/2021 | Liceo Scientifico**
+:round_pushpin: **[Liceo Scientifico Statale Einstein Milano](https://liceoeinsteinmilano.edu.it/)**
+
+* **Final Grade:** 100/100
+
+---
+
 ## :briefcase: Experience
 
-### **2025 - 2026 | HPC System Administrator**
+### **11/07/2025 - 31/07/2026 | HPC System Administrator**
 :round_pushpin: **University of Milan**
 <br> :busts_in_silhouette: *University Collaboration*
 
 * **Key Responsibilities:**
     * Managed Linux-based computing clusters for the Theoretical physics research group.
     * Handled software installation, user management, Hardware installation, network management, firewall, self hosted mail server
-    * **Skills used:** Bash scripting, SSH, Batch systems (Slurm), Linux networking
+    * **Skills used:** Networking, Bash scripting, Batch systems (Slurm)
 
 ---
 
 ## :tools: Technical Skills
 
 **Programming & Computation**
-:   Python (NumPy, SciPy, Matplotlib), C++, Mathematica
+:  C++, Mathematica, Python
 
 <!-- **Physics Software**
 :   ROOT (Cern), MadGraph5_aMC@NLO -->
 
 **Tools & Environment**
-:   Git/GitHub, Linux (Bash), LaTeX, VS Code, Docker, Ansible
+:   Linux (Bash), Git, LaTeX, VS Code, Docker, Ansible
 
 ---
 
@@ -58,5 +71,6 @@ I am currently seeking **PhD opportunities** for Fall 2026.
 
 * **Italian:** Native
 * **English:** Full Professional Proficiency (C1)
+* **Chinese:** Colloquial
 
 ---

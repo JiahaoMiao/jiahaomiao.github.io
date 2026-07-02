@@ -1,0 +1,77 @@
+/* Light-theme tweaks for the thesis-defense deck.
+   Pairs with reveal.js' built-in `white` theme; keeps the white-background
+   manim videos blending in without borders. */
+
+/* Left-align content slides; the `.center` class re-centers (e.g. title). */
+.reveal .slides section {
+  text-align: left;
+}
+.reveal .slides section.center {
+  text-align: center;
+}
+
+.reveal h1 {
+  font-size: 1.8em;
+}
+.reveal h2 {
+  font-size: 1.3em;
+  margin-bottom: 0.5em;
+}
+
+/* Manim videos are 16:9 on white; let them fill the slide cleanly. */
+.reveal video {
+  display: block;
+  margin: 0 auto;
+  max-height: 78vh;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  background: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+
+/* Animation-only slides (scenes 01-03): the section holds nothing but the
+   video -- title/equations are baked into the render -- so there is no heading
+   or caption to leave room for. Drop the shared 78vh cap and let the 16:9 video
+   grow to the full slide width (max-width:100% still prevents any overflow). */
+.reveal section.full-anim video {
+  max-height: 95vh;
+}
+
+/* Placeholder markers so unfinished slides are obvious while you build. */
+.reveal .todo {
+  color: #b00020;
+  font-style: italic;
+}
+
+/* KaTeX: keep display equations readable but not oversized on 16:9 slides. */
+.reveal .katex { font-size: 1.05em; }
+.reveal .katex-display { margin: 0.4em 0; }
+/* Small helper text: talk roadmap line and literature references. */
+.reveal .roadmap { font-size: 0.62em; color: #555; margin-top: 0.6em; }
+.reveal .ref { font-size: 0.6em; color: #777; }
+.reveal section h2 { margin-bottom: 0.3em; }
+
+/* ----------------------------------------------------------------------
+   Reusable text roles. Replace per-element inline font-size overrides so
+   the type scale stays consistent across slides; tune here, not in HTML.
+   ---------------------------------------------------------------------- */
+
+/* Title slide. */
+.reveal h1.title-main { font-size: 1.4em; line-height: 1.15; }
+.reveal .byline   { margin-top: 0.8em; }          /* author line */
+.reveal .affil    { font-size: 0.75em; }           /* institution / supervisors */
+
+/* Body roles. */
+.reveal .intro    { font-size: 0.85em; }           /* lead-in line under a heading */
+.reveal .eq-note  { font-size: 0.72em; color: #555; } /* footnote under an equation */
+.reveal .lead     { margin-top: 0.5em; }           /* bold takeaway paragraph */
+
+/* Slightly tighter, uniform list/paragraph rhythm on content slides. */
+.reveal .slides section li { margin-bottom: 0.35em; }
+.reveal .slides section p  { margin: 0.5em 0; }
+
+/* Backup slides: one notch smaller, set once via the section class. */
+.reveal section.backup h2 { font-size: 0.9em; }
+.reveal section.backup ul { font-size: 0.85em; }

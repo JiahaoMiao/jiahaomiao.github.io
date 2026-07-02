@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master's thesis defense</title>
+
+    <!-- Vendored reveal.js (offline; no CDN). UMD build works over http:// and file://. -->
+    <link rel="stylesheet" href="reveal/dist/reset.css" />
+    <link rel="stylesheet" href="reveal/dist/reveal.css" />
+    <link rel="stylesheet" href="reveal/dist/theme/white.css" id="theme" />
+    <link rel="stylesheet" href="css/custom.css" />
+    <!-- Defense-deck visual identity; loads last so it overrides. Delete this
+         one line (and the title-slide <svg>) to revert to the plain theme. -->
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+
+        <!-- 1. Title -->
+        <section class="center title-slide">
+          <h1 class="title-main">
+            Resummation of QCD large infrared logarithms<br />
+            for event-shape distributions in
+            e<sup>+</sup>e<sup>&minus;</sup> annihilation
+          </h1>
+          <!-- Signature: the N4LL result inverted two ways — in N-space
+               (Minimal Prescription, solid) and in physical space (CTTW,
+               dashed). They agree in the tail and split at the peak. The shape
+               echoes the matched tau distribution: a sharp Sudakov peak near
+               the left and a long tail. -->
+          <div class="cover-figure">
+            <img class="side-logo unimi" src="logos/unimi_logo.png" alt="Università degli Studi di Milano" />
+            <svg
+            class="peak-hero"
+            viewBox="0 0 140 104"
+            role="img"
+            aria-label="The N4LL event-shape distribution inverted two ways — in N-space (solid) and in physical space (dashed) — agreeing in the tail and splitting at the peak."
+          >
+            <line class="axis" x1="16" y1="14" x2="16" y2="84" />
+            <line class="axis" x1="16" y1="84" x2="134" y2="84" />
+            <path class="curve-dash" d="M16,82 C28,82 39,28 49,28 C61,28 85,78 105,80 C114,82 122,83 130,83" />
+            <path class="curve-solid" d="M16,82 C28,82 38,22 48,22 C60,22 84,78 104,80 C114,82 122,83 130,83" />
+            <text class="peak-label" x="46" y="12" style="fill: var(--accent-lit)">N<tspan dy="-2.4" font-size="4.6">4</tspan><tspan dy="2.4">LL &middot; N-space</tspan></text>
+            <text class="peak-label" x="76" y="24" style="fill: var(--dash)">N<tspan dy="-2.4" font-size="4.6">4</tspan><tspan dy="2.4">LL &middot; physical</tspan><tspan x="108" dy="10">space</tspan></text>
+            <text class="peak-label" x="120" y="98" style="fill: var(--ink-soft)">&#964;</text>
+          </svg>
+            <img class="side-logo" src="logos/infn_logo.png" alt="INFN" />
+          </div>
+          <p class="byline">
+            <strong>Jiahao Miao</strong> &middot; 2 July 2026
+          </p>
+          <p class="affil">
+            Laurea Magistrale in Fisica
+          </p>
+          <p class="affil">
+            Supervisor: Prof.&nbsp;Giancarlo&nbsp;Ferrera
+          </p>
+          <p class="affil">
+            Co-supervisors: Prof.&nbsp;Ugo&nbsp;Giuseppe&nbsp;Aglietti
+            &middot; Dr.&nbsp;Wan-Li&nbsp;Ju
+          </p>
+          <p class="title-ref">
+            Publications: Aglietti, Ferrera, Ju, <u>Miao</u>,
+            <strong>Phys.&nbsp;Rev.&nbsp;Lett.&nbsp;134&nbsp;(2025)&nbsp;25</strong>
+          </p>
+          <p class= "title-ref">
+            Aglietti, Ferrera, Ju, <u>Miao</u>,
+            In preparation
+          </p>
+        </section>
+
+        <!-- Introduction: the Standard Model & QCD. Background bridge between the
+             title and the event-shape animation; sets up alpha_s, which the
+             "alpha_s(m_Z^2) tension" motivation slide then pays off. -->
+        <section class="sm-intro">
+          <h2>The Standard Model &amp; QCD</h2>
+          <div class="sm-cols">
+            <div class="sm-col sm-col--sm">
+              <h3>The Standard Model</h3>
+              <img
+                class="sm-figure"
+                src="figures/Standard_Model_of_Elementary_Particles.webp"
+                alt="The Standard Model of elementary particles: three generations of quarks and leptons, the gauge bosons (gluon, photon, Z, W) and the Higgs."
+              />
+              <p class="sm-cap">
+                A quantum field theory of the fundamental particles and their
+                interactions &mdash; tested at colliders.
+              </p>
+            </div>
+            <div class="sm-col sm-col--qcd">
+              <h3>Quantum Chromodynamics</h3>
+              <ul>
+                <li>The QFT of the <strong>strong interaction</strong>;</li>
+                <li>
+                  One running coupling $\alpha_s(\mu)$: high energy $\to$
+                  <strong>asymptotic freedom</strong>, low energy $\to$
+                  <strong>confinement</strong>;
+                </li>
+                <li>$\alpha_s(m_Z^2)=0.1180\pm0.0009$.</li>
+              </ul>
+              <img
+                class="sm-plot"
+                src="figures/alpha_s_running.svg"
+                alt="The running coupling alpha_s(mu) from 0.1 to 10 m_Z solved at one to five loops (LO to N4LO); the curves nearly coincide, falling with energy (asymptotic freedom) and anchored at alpha_s(m_Z^2)=0.1180."
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Motivation: the alpha_s(m_Z^2) tension — event-shape extractions sit
+             low. Placed right after the SM/QCD intro so the running-coupling
+             setup on that slide pays off immediately. -->
+        <section class="center">
+          <h2>The $\alpha_s(m_Z^2)$ tension</h2>
+          <!-- PDG compilation of alpha_s(m_Z^2) determinations, by method
+               (Aug 2021 | Aug 2023). The blue band is the world average; in the
+               2021 panel the event-shape thrust/C extractions (Abbate,
+               Gehrmann, Hoang) are highlighted green and sit notably low. -->
+          <img
+            class="pdg-figure r-stretch"
+            src="figures/pdg_alpha_2021_2023.svg"
+            alt="PDG compilation of alpha_s(m_Z^2) determinations grouped by method (tau decays, QQbar bound states, PDF fits, e+e- jets and shapes, hadron collider, electroweak, lattice) for 2021 and 2023. Most methods cluster on the world-average band near 0.118; the event-shape thrust and C-parameter extractions sit systematically low near 0.113."
+          />
+        </section>
+
+        <!-- 2. Event-shape observables (defined before the animation that shows
+             tau and C growing as the event fills out) -->
+        <section>
+          <h2>Event-shape observables</h2>
+          <p class="intro">
+            Scalar, IRC-safe functions of the final-state momenta &mdash; the
+            geometry of energy flow, from two-jet ($y\to0$) to spherical
+            ($y\to y_{\max}$).
+          </p>
+          <p>$$\tau = 1 - T,\qquad T=\max_{\hat n}\frac{\sum_i|\vec p_i\cdot\hat n|}{\sum_i|\vec p_i|}$$</p>
+          <p>$$C = 3\,(\lambda_1\lambda_2+\lambda_2\lambda_3+\lambda_3\lambda_1)$$</p>
+          <p>$$\lambda_i=\mathrm{eig}\,\Theta,\qquad\Theta^{ab}=\frac{\sum_i p_i^a\,p_i^b/|\vec p_i|}{\sum_i|\vec p_i|}$$</p>
+          <p class="eq-note">
+            $\Theta$: the linearised momentum tensor.
+          </p>
+        </section>
+
+        <!-- 3. Animation: event shapes (scene 01) -->
+        <section class="full-anim">
+          <video
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/event_shapes_panels.poster.webp"
+          >
+            <source src="videos/event_shapes_panels.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- 4. Animation: measured distributions (scene 02) -->
+        <section class="full-anim">
+          <video
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/event_shape_distributions.poster.webp"
+          >
+            <source src="videos/event_shape_distributions.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- 6. Fixed order & its breakdown -->
+        <section data-background-color="#f6f6f6">
+          <h2>Fixed order &mdash; and where it breaks</h2>
+          <p>$$\frac{1}{\sigma}\frac{d\sigma}{dy}=\Big(\tfrac{\alpha_s}{2\pi}\Big)\bar A(y)+\Big(\tfrac{\alpha_s}{2\pi}\Big)^2\bar B(y)+\Big(\tfrac{\alpha_s}{2\pi}\Big)^3\bar C(y)+\mathcal{O}(\alpha_s^4)$$</p>
+          <ul>
+            <li>Accurate in the bulk (three-jet region), known to NNLO.</li>
+            <li>
+              Spoiled toward the peak: each order grows like
+              $\alpha_s^n\ln^{2n}(1/y)$ as $y\to0$ &mdash; the series must be
+              <strong>resummed</strong>.
+            </li>
+          </ul>
+        </section>
+
+        <!-- 7. Animation: fixed-order predictions (scene 03) -->
+        <section class="full-anim">
+          <video
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/fixed_order_distributions.poster.webp"
+          >
+            <source src="videos/fixed_order_distributions.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- 8. Resummation: Sudakov & CTTW -->
+        <section class="tight" data-background-color="#f6f6f6">
+          <h2>Resummation: the Sudakov form factor</h2>
+          <p class="intro">
+            Physical space, two-jet limit $y\to0$ &mdash; a tower of large logs:
+          </p>
+          <p>$$\Sigma(y)=\frac{1}{\sigma}\int_0^{y}\!dy'\,\frac{d\sigma}{dy'}=\sum_{n=1}^{\infty}\sum_{m=0}^{2n}C_{nm}\,\alpha_s^{n}\,\ln^{m}\!\frac{1}{y}$$</p>
+          <p class="eq-note">double (Sudakov) logs: leading tower $\alpha_s^{n}\ln^{2n}(1/y)$, divergent as $y\to0$.</p>
+          <p class="intro">
+            Laplace ($N$) space &mdash; they exponentiate (Catani, Trentadue,
+            Turnock, Webber):
+          </p>
+          <p>$$\Sigma(N)=\exp\!\Big[L\,g_1(\alpha_s L)+g_2(\alpha_s L)+\alpha_s g_3(\alpha_s L)+\cdots\Big],\quad L=\ln N$$</p>
+          <p>
+            Organised to <strong>N<sup>4</sup>LL</strong>, then matched onto fixed order.
+          </p>
+        </section>
+
+        <!-- The inversion contour family — now on the main line, right before the
+             ambiguity: invert the N-space Sudakov back to physical y as an
+             inverse-Laplace integral over a free contour (any path to the left of
+             the Landau pole gives the same result). Sets up the two-routes ambiguity. -->
+        <section data-background-color="#f6f6f6">
+          <h2>Back to physical space: the inversion contour</h2>
+          <p>$$\frac{1}{\sigma}\frac{d\sigma}{d\tau}=\frac{1}{2\pi i}\int_{\mathcal C}dN\;e^{N\tau}\,\Sigma(N)$$</p>
+          <video
+            class="contour-video"
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/inversion_contours.poster.webp"
+          >
+            <source src="videos/inversion_contours.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- The resummation ambiguity: which logs do we resum? (the novelty).
+             The N-space Sudakov is exact; the two inversions back to physical y
+             resum different logarithms and disagree in the peak. Follows the
+             inversion-contour slide; precedes the resummed-predictions animation. -->
+        <section class="ambiguity tight" data-background-color="#f6f6f6">
+          <h2>The resummation ambiguity: $\ln N$ vs $\ln\tfrac1y$</h2>
+          <p class="intro">
+            The Sudakov tower factorizes and exponentiates <strong>exactly</strong>
+            only in Laplace ($N$) space. To meet the data we must return to physical
+            $y$ &mdash; and there are two inequivalent routes:
+          </p>
+          <div class="cols">
+            <div class="col col--np">
+              <h3>Minimal Prescription (CMNT)</h3>
+              <p>Keep the inverse-Laplace $N$-integral; deform the contour to the
+                 left of the Landau pole $N_L$</p>
+              <p class="resum">resums&nbsp; $\ln N$</p>
+            </div>
+            <div class="col col--cttw">
+              <h3>CTTW analytic</h3>
+              <p>Expand the exponent around $\ln N=\ln\tfrac1y$ so the
+                 inversion is done term by term.</p>
+              <p class="resum">resums&nbsp; $\ln\tfrac1y$</p>
+            </div>
+          </div>
+          <p class="bridge">
+            <strong>We provide the first implementation of the Minimal
+            Prescription for event-shape distributions.</strong>
+          </p>
+          <p class="punch">
+            We find a <strong>structural gap</strong> in the peak.
+            <span class="cite">&mdash; Aglietti, Ferrera, Ju, Miao, PRL 134 (2025)</span>
+          </p>
+        </section>
+
+        <!-- 10. Animation: resummed predictions (scene 05). The title is a static
+             KaTeX heading here; the fixed-order -> resummed equation transition
+             (Sudakov highlight) is rendered in the video alongside the plot. -->
+        <section class="titled-anim titled-anim-wide">
+          <h2>$e^+e^-\to$ hadrons: resummed predictions</h2>
+          <video
+            class="anim-video"
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/resummed_distributions.poster.webp"
+          >
+            <source src="videos/resummed_distributions.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- 11. Animation: matched predictions vs data (scene 04). Title +
+             equation are KaTeX here (not baked into the video) so they stay
+             crisp and the video carries only the plots. -->
+        <section class="titled-anim">
+          <h2>$e^+e^-\to$ hadrons: matched predictions</h2>
+          <p class="anim-eq">$$\frac{1}{\sigma_{\mathrm{tot}}}\frac{d\sigma}{dy}=C(\alpha_s)\,\frac{d\Sigma}{dy}+D(y,\alpha_s),\qquad y=\tau,\,C$$</p>
+          <video
+            class="anim-video"
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/matched_distributions.poster.webp"
+          >
+            <source src="videos/matched_distributions.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- 12. Animation: non-perturbative corrections (scene 06).
+             The formulae are KaTeX here (not baked into the video) so they stay
+             crisp and the video carries only the plots. -->
+        <section>
+          <p class="anim-eq">$$\frac{1}{\sigma}\frac{d\sigma_{\mathrm{had}}}{dy}=\int_0^{y} dy_p\; f_{\mathrm{NP}}(y-y_p)\,\frac{1}{\sigma}\frac{d\sigma_{\mathrm{pert}}}{dy_p}\qquad f_{\mathrm{NP}}(\epsilon)=\frac{1}{\sqrt{2\pi}\,\sigma_{\mathrm{NP}}}\exp\!\left[-\frac{(\epsilon-\delta_{\mathrm{NP}})^2}{2\,\sigma_{\mathrm{NP}}^2}\right]$$</p>
+          <video
+            class="anim-video"
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/nonperturbative_convolution.poster.webp"
+          >
+            <source src="videos/nonperturbative_convolution.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- 13. Conclusions -->
+        <section class="dense" data-background-color="#f6f6f6">
+          <h2>Conclusions</h2>
+          <ul>
+            <li>
+              Implemented <strong>both inversions</strong> &mdash; CTTW
+              exponentiation and the CMNT Minimal Prescription &mdash; in one
+              unified code (remainder function, unitarity, scale variation).
+            </li>
+            <li>
+              Extended the analysis <strong>from thrust to the C-parameter</strong>.
+            </li>
+          </ul>
+          <h3>Outlook</h3>
+          <ul>
+            <li>
+              Shoulder resummation
+            </li>
+            <li>
+              Extend the analysis to <strong>all energies</strong>.
+            </li>
+            <li>
+              Perform an <strong>$\alpha_s(m_Z^2)$ fit</strong>.
+            </li>
+          </ul>
+        </section>
+
+        <!-- 14. Thank you -->
+        <section class="center">
+          <h1>Thank you</h1>
+        </section>
+
+        <!-- Backup (lead-off): thrust-minimisation genetic algorithm (scene 07).
+             Pairs with the "Event shapes: 3, 4, 5 partons" slide. -->
+        <section class="backup" data-visibility="uncounted" data-background-color="#f0f0f0">
+          <h2>Backup &mdash; finding the configurations (genetic algorithm)</h2>
+          <video
+            data-autoplay
+            muted
+            playsinline
+            poster="videos/thrust_optimization.poster.webp"
+          >
+            <source src="videos/thrust_optimization.mp4" type="video/mp4" />
+          </video>
+        </section>
+
+        <!-- Backup: why N space — factorization in the two-jet limit -->
+        <section class="backup tight" data-visibility="uncounted" data-background-color="#f0f0f0">
+          <h2>Backup &mdash; why resummation lives in $N$ space</h2>
+          <p class="intro">Same tower, Laplace ($N$) space&nbsp;($\ln\frac1y\to\ln N$):</p>
+          <p>$$\Sigma(N)=\int_0^{\infty}\!dy\,e^{-Ny}\,\frac{1}{\sigma}\frac{d\sigma}{dy}=\sum_{n=1}^{\infty}\sum_{m=0}^{2n}\bar C_{nm}\,\alpha_s^{n}\,\ln^{m}\!N$$</p>
+          <p class="intro">As $y\to0$ both factorize &mdash; <strong>matrix element</strong>:</p>
+          <p>$$|\mathcal{M}_{n+1}|^2\;\xrightarrow{\,y\to0\,}\;|\mathcal{M}_{n}|^2\,\frac{2C_F\alpha_s}{\pi}\,\frac{dk_t^2}{k_t^2}\,\frac{dz}{1-z}$$</p>
+          <p class="intro">and <strong>kinematics</strong> (additive observable):</p>
+          <p>$$y\to\sum_i y_i,\qquad\int_0^{\infty}\!\!dy\,e^{-Ny}\,\delta\!\Big(y-\sum_i y_i\Big)=\prod_i e^{-Ny_i}$$</p>
+          <p class="eq-note">$\Rightarrow$ convolution in $y$ becomes a product in $N$:&nbsp; $\Sigma(N)=\prod_i\Sigma_i(N)=\exp\!\big[\textstyle\sum_i\cdots\big]$ &mdash; the Sudakov form factor.</p>
+        </section>
+
+        <!-- 15. Backup: scale variation -->
+        <section class="backup tight" data-visibility="uncounted" data-background-color="#f0f0f0">
+          <h2>Backup &mdash; theory uncertainty</h2>
+          <p class="intro">
+            Two scales, $x_R\equiv\mu_R/Q$ (renormalization) and
+            $x_Q\equiv\mu_Q/Q$ (resummation), $\mu_R,\mu_Q\in[Q/2,2Q]$, $Q=m_Z$.
+            The resummation scale enters through a <strong>log substitution</strong>
+            on the resummation variable $\lambda=\alpha_s b_0 L$:
+          </p>
+          <p>$$L=\ln N\;\longrightarrow\;\ln\frac{N}{x_Q}=L-\ln x_Q,\qquad\lambda\;\longrightarrow\;\lambda-\alpha_s b_0\ln x_Q$$</p>
+          <p class="intro">
+            The modified logarithm (CTTW) carries the same scale and vanishes at the
+            endpoint $\tau_{\max}$, normalising the spectrum:
+          </p>
+          <p>$$\ln\frac1\tau\;\longrightarrow\;\widetilde L(x_Q)=\ln\!\Big(\frac{1}{x_Q\,\tau}-\frac{1}{x_Q\,\tau_{\max}}+1\Big),\qquad\widetilde L\big|_{\tau=\tau_{\max}}=0$$</p>
+          <p class="intro">
+            Seven-point envelope &mdash; scan each scale, drop the anti-correlated
+            corners where the logs add coherently:
+          </p>
+          <p>$$x_R,\,x_Q\in\{\tfrac12,1,2\},\qquad\frac{x_R}{x_Q}\in\{\tfrac14,4\}\ \text{dropped}\;\Rightarrow\;7\ \text{points}$$</p>
+          <p class="eq-note">The band is the spread of the survivors; it narrows NLL&nbsp;$\to$&nbsp;N$^4$LL.</p>
+        </section>
+
+        <!-- 16. Backup: C-parameter shoulder -->
+        <section class="backup" data-visibility="uncounted" data-background-color="#f0f0f0">
+          <h2>Backup &mdash; the $C=3/4$ shoulder</h2>
+          <ul>
+            <li>
+              The C-parameter has a Sudakov shoulder at $C=3/4$ (the three-parton
+              kinematic boundary) &mdash; absent for thrust.
+            </li>
+            <li>
+              It needs its own treatment; below it the two-jet resummation is
+              unchanged.
+            </li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="reveal/dist/reveal.js"></script>
+    <!-- KaTeX from the same unpkg CDN the rest of the site uses. -->
+    <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+    <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        controls: true,
+        progress: true,
+        slideNumber: "c/t",
+        // 16:9 design canvas (was the 960x700 default) so the 16:9 manim videos
+        // fill the slide edge-to-edge; reveal scales this to any projector.
+        width: 1280,
+        height: 720,
+        // Fullscreen: "F". Overview: "Esc".
+        plugins: [],
+      }).then(() => {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true },
+          ],
+          throwOnError: false,
+        });
+        // Videos have no controls bar; click one to replay it from the start.
+        document.querySelectorAll(".reveal video").forEach((v) => {
+          v.addEventListener("click", () => {
+            v.currentTime = 0;
+            // play() returns a promise that can reject if the browser
+            // interrupts playback; swallow it so file:// venues stay quiet.
+            const p = v.play();
+            if (p) p.catch(() => {});
+          });
+        });
+        // Replay the title's N-space draw each time that slide becomes current
+        // (the physical-space dashed curve is static, so only the solid curve
+        // animates). Restarting a CSS animation needs the off/reflow/on dance;
+        // reverting to "" lets the stylesheet (incl. reduced-motion) decide,
+        // so this stays a no-op for users who opted out of motion.
+        Reveal.on("slidechanged", (e) => {
+          e.currentSlide
+            .querySelectorAll(".peak-hero .curve-solid")
+            .forEach((el) => {
+              el.style.animation = "none";
+              void el.offsetWidth; // force reflow so the restart registers
+              el.style.animation = "";
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

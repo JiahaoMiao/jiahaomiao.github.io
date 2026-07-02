@@ -23,6 +23,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          # Fetch Git LFS content (presentation videos); without this the
+          # deployed site would serve LFS pointer files instead of the videos.
+          lfs: true
 
       # Installs uv and caches its download/global cache. uv reads
       # .python-version and pyproject.toml to provision Python 3.14.
