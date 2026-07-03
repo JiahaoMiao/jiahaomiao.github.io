@@ -12,6 +12,10 @@ A list of conferences and workshops I have attended to deepen my understanding o
 
 ### **2026**
 
+* **[Incontri di Fisica delle Alte Energie (IFAE 2026)](https://agenda.infn.it/event/47878/overview)**
+    * :round_pushpin: *Tecnopolo DAMA, Bologna*
+    * :calendar: *8-10 April 2026*
+
 * **[Special Challenges in QCD](https://agenda.infn.it/event/48177/)**
     * :round_pushpin: *Galileo Galilei Institute (GGI), Florence*
     * :calendar: *8-9 January 2026*

@@ -4,12 +4,12 @@ My primary research focus is **Perturbative QCD** and **Standard Model Phenomeno
 
 ---
 
-## :hourglass_flowing_sand: Current Research (Master's Thesis)
+## :hourglass_flowing_sand: Master's Thesis Research
 
 **Topic:** *Precision QCD and Higher-Order Resummation*
 <br> **Supervisor:** Prof. Giancarlo Ferrera
 
-I am currently a Master's Candidate (*Laureando Magistrale*) continuing the investigation into high-precision QCD predictions. My work focuses on:
+For my Master's thesis (defended in July 2026) I continued the investigation into high-precision QCD predictions. My work focused on:
 
 * **Higher-Order Resummation:** Extending the analytical resummation accuracy (towards **N³LL** and beyond) for event shapes.
 * **Phenomenological Applications:** Analyzing the impact of these higher-order corrections on the precise extraction of the strong coupling constant, $\alpha_s$, from collider data.

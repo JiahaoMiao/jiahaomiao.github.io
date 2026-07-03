@@ -1,7 +1,7 @@
 # Curriculum Vitae
 
-I am a Master's student in Theoretical Physics with a focus on resummation in perturbative QCD.
-I am currently seeking **PhD opportunities** for Fall 2026.
+I hold a Master's degree in Theoretical Physics from the University of Milan, with a focus on resummation in perturbative QCD.
+On 1 October 2026 I will start my **PhD at the University of Zurich (UZH)** in the [group of Prof. Massimiliano Grazzini](https://www.physik.uzh.ch/en/groups/grazzini.html).
 
 [:fontawesome-solid-file-pdf: Download Full CV](../assets/pdfs/Jiahao_Miao_CV.pdf){ .md-button .md-button--primary .md-button--large }
 
@@ -9,17 +9,26 @@ I am currently seeking **PhD opportunities** for Fall 2026.
 
 ## :mortar_board: Education
 
+### **From 01/10/2026 | Ph.D. in Physics**
+:round_pushpin: **[Universität Zürich (UZH)](https://www.physik.uzh.ch/en.html)**
+
+* **Group:** [Prof. Massimiliano Grazzini](https://www.physik.uzh.ch/en/groups/grazzini.html)
+* **Focus:** Precision QCD phenomenology at colliders
+
+---
+
 ### **23/09/2024 - 02/07/2026 | M.Sc in Physics**
 :round_pushpin: **[Università degli Studi di Milano](https://www.fisica.unimi.it/ecm/home)**
 <br> :book: *Major: Theoretical Physics*
 
 * **Supervisor:** [Prof. Giancarlo Ferrera](https://www.unimi.it/it/ugov/person/giancarlo-ferrera)
 * **Focus:** Quantum Field Theory, Standard Model Phenomenology, Computational Physics, QCD
+* **Final Grade:** 110/110 cum laude
 
 [Download Thesis](../assets/pdfs/Tesi_Jiahao_Miao_51593A.pdf){ .md-button .md-button--small }
 [Defense Slides](/slides/master-defense/){ .md-button .md-button--small target=_blank }
 
-*Interactive defense slides (reveal.js) with the manim animations — navigate with the arrow keys, press <kbd>F</kbd> for fullscreen and <kbd>Esc</kbd> for the slide overview.*
+*Interactive defense slides ([reveal.js](https://revealjs.com/)) with the [manim](https://www.manim.community/) animations — navigate with the arrow keys, press <kbd>F</kbd> for fullscreen and <kbd>Esc</kbd> for the slide overview.*
 
 ---
 

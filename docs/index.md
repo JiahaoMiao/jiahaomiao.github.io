@@ -8,7 +8,7 @@ hide:
 # <div align="center" markdown> Hi, I'm Jiahao Miao </div>
 
 <div align="center" markdown>
-  <strong>M.Sc. Student in Theoretical Physics @ University of Milan</strong>
+  <strong>M.Sc. in Theoretical Physics · Incoming PhD Student @ University of Zurich</strong>
 </div>
 
 <div align="center" markdown>
@@ -19,9 +19,9 @@ hide:
 
 ## **About Me**
 
-I am a Theoretical Physics student based in **Milan, Italy**.
+In July 2026 I completed my Master's degree in Physics at the **University of Milan**. On 1 October 2026 I will start my **PhD at the University of Zurich (UZH)** in the [group of Prof. Massimiliano Grazzini](https://www.physik.uzh.ch/en/groups/grazzini.html).
 
-My research focuses on **Perturbative QCD**, specifically the study of event shape variables like **Thrust** ($\tau$). I am currently working on extending resummation accuracy to higher orders under the supervision of Prof. Giancarlo Ferrera.
+My research focuses on **Perturbative QCD**, specifically the study of event shape variables like **Thrust** ($\tau$). For my Master's thesis I worked on extending resummation accuracy to higher orders under the supervision of Prof. Giancarlo Ferrera.
 
 I obtained my Bachelor's degree in Physics from the University of Milan in July 2024.
 
@@ -57,22 +57,14 @@ Here you can find everything about my academic path and research.
 
     [See Full CV](about/cv.md){ .md-button .full-width }
 
--   :notebook: **Notes**
-
-    Personal notes on QFT for students.
-
-    [Download Notes](resources/notes.md){ .md-button .full-width }
-
 </div>
 
 ---
 
-## **:newspaper: Latest News**
+## **:newspaper: [Latest News](academic/workshops.md)**
 
 | Date | Event |
 | :--- | :--- |
-| **Apr 2026** | :round_pushpin: Participating in IFAE 2026
-| **Jan 2026** | Attended *Special Challenges in QCD* at **GGI (Florence)**. |
-| **Dec 2025** | Attended the *Milan Christmas Meeting 2025*. |
-| **Oct 2025** | Attended the *REF 2025 (Resummation, Evolution, Factorization)*. |
+| **Oct 2026** | Starting my PhD at the **University of Zurich (UZH)** in the group of Prof. Massimiliano Grazzini. |
+| **Jul 2026** | :mortar_board: Graduated with an M.Sc. in Physics from the **University of Milan**. |
 | **June 2025** | :page_facing_up: Published first PRL paper on Thrust Resummation. |
